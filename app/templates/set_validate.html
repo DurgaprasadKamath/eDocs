@@ -1,0 +1,62 @@
+{% extends "set_password.html" %} {% block title %} eDocs - Validate Account {%
+endblock title %} {% block form %}
+
+<div class="set-pass-container">
+  <div class="block1">
+    <p id="logoTxt">eDocs</p>
+    <div class="txtBlock">
+      <p id="contentTxt">Validate Account</p>
+      <p id="blueTxt">Enter your ID and Last 4 digit of your phone number</p>
+    </div>
+  </div>
+  <div class="block2">
+    <form action="/set-password/validate-account" method="post" id="userForm">
+      <div class="input-block">
+        <p id="label">ID with last 4 digit of phone number</p>
+        <input
+          type="text"
+          name="validNo"
+          placeholder="Validate Number Here"
+          value="{{validNo or ''}}"
+          pattern="[0-9]{8,12}"
+          minlength="8"
+          maxlength="12"
+          id="idNo"
+          required
+        />
+        {% if validNoError %}
+        <p id="errorTxt">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          Validation Number does not match!
+        </p>
+        {% endif %}
+      </div>
+      <button id="submitBtn" type="submit">
+        <div
+          class="spinner-border"
+          style="display: none"
+          id="spinner"
+          role="status"
+        >
+          <span class="visually-hidden">Loading</span>
+        </div>
+        <span id="submitTxt">Validate</span>
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+  const idNo = document.getElementById("idNo");
+  const errorTxt = document.getElementById("errorTxt");
+
+  idNo.addEventListener("input", () => {
+    if (idNo.value != "{{id_no}}") {
+      errorTxt.style.display = "none";
+    } else {
+      errorTxt.style.display = "block";
+    }
+  });
+</script>
+
+{% endblock form %}

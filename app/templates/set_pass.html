@@ -1,0 +1,190 @@
+{% extends "set_password.html" %}
+{% block title %}
+  eDocs - Authentication Information
+{% endblock title %}
+{% block form %}
+
+<div class="set-pass-container">
+  <div class="block1">
+    <p id="logoTxt">eDocs</p>
+    <div class="txtBlock">
+      <p id="contentTxt">Authentication Information</p>
+      <p id="blueTxt">Enter your new password for email {{email}}</p>
+    </div>
+  </div>
+  <div class="block2">
+    <form action="/set-password/password" method="post" id="userForm">
+      <input type="email" value="{{email}}" hidden />
+      <div class="input-block">
+        <p id="label">Password</p>
+        <div class="password-block">
+          <input
+            type="password"
+            name="password"
+            id="password"
+            minlength="4"
+            maxlength="10"
+            pattern="(?=.*[a-z])(?=.*[A-Z]).{4,10}"
+            title="Must contain 4 to 10 characters with atleast one uppercase character"
+            required
+          />
+          <button type="button" onclick="togglePassword()">
+            <i id="passIcon" class="fa-solid fa-eye-slash"></i>
+          </button>
+        </div>
+        <div class="strength-pass">
+          <p id="weak" style="display: none">Weak</p>
+          <p id="medium" style="display: none">Medium</p>
+          <p id="strong" style="display: none">Strong</p>
+        </div>
+      </div>
+      <div class="input-block">
+        <p id="label">Confirm Password</p>
+        <div id="cPassBlock" class="password-block">
+          <input type="password" name="cpassword" id="cpassword" required />
+          <button type="button" onclick="toggleConfPassword()">
+            <i id="cPassIcon" class="fa-solid fa-eye-slash"></i>
+          </button>
+        </div>
+        <p id="errorTxt" style="display: none">Password does not match!</p>
+      </div>
+      <button id="submitBtn" type="submit">
+        <div
+          class="spinner-border"
+          style="display: none"
+          id="spinner"
+          role="status"
+        >
+          <span class="visually-hidden">Loading</span>
+        </div>
+        <span id="submitTxt">Set Password</span>
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+  const password = document.getElementById("password");
+  const cpassword = document.getElementById("cpassword");
+  const passIcon = document.getElementById("passIcon");
+  const cPassIcon = document.getElementById("cPassIcon");
+  const cPassBlock = document.getElementById("cPassBlock");
+  const notMatchTxt = document.getElementById("errorTxt");
+  const weak = document.getElementById("weak");
+  const medium = document.getElementById("medium");
+  const strong = document.getElementById("strong");
+  const submitBtn = document.getElementById("submitBtn");
+
+  function togglePassword() {
+    if (password.type === "password") {
+      password.type = "text";
+      passIcon.classList.remove("fa-eye-slash");
+      passIcon.classList.add("fa-eye");
+    } else {
+      password.type = "password";
+      passIcon.classList.remove("fa-eye");
+      passIcon.classList.add("fa-eye-slash");
+    }
+  }
+  function toggleConfPassword() {
+    if (cpassword.type === "password") {
+      cpassword.type = "text";
+      cPassIcon.classList.remove("fa-eye-slash");
+      cPassIcon.classList.add("fa-eye");
+    } else {
+      cpassword.type = "password";
+      cPassIcon.classList.remove("fa-eye");
+      cPassIcon.classList.add("fa-eye-slash");
+    }
+  }
+
+  cpassword.addEventListener("input", () => {
+    if (cpassword.value != password.value) {
+      cPassBlock.style.boxShadow = "0px 0px 0px 1px #da1e37";
+      submitBtn.disabled = true;
+      notMatchTxt.style.display = "block";
+    } else {
+      cPassBlock.style.boxShadow = "none";
+      submitBtn.disabled = false;
+      notMatchTxt.style.display = "none";
+    }
+  });
+
+  password.addEventListener("input", () => {
+    const value = password.value;
+
+    if (value.length === 0 || value.length < 4) {
+      weak.style.display = "none";
+      medium.style.display = "none";
+      strong.style.display = "none";
+    }
+    if (value.length >= 4 && value.length <= 10) {
+      weak.style.display = "inline";
+      medium.style.display = "none";
+      strong.style.display = "none";
+    }
+    if (
+      value.length >= 6 &&
+      value.length <= 10 &&
+      /[!@#$%^&*().,/]/.test(value)
+    ) {
+      weak.style.display = "none";
+      medium.style.display = "inline";
+      strong.style.display = "none";
+    }
+    if (
+      value.length >= 6 &&
+      value.length <= 10 &&
+      /[A-Z]/.test(value) &&
+      /[a-z]/.test(value)
+    ) {
+      weak.style.display = "none";
+      medium.style.display = "inline";
+      strong.style.display = "none";
+    }
+    if (
+      value.length >= 6 &&
+      value.length <= 10 &&
+      /[A-Z]/.test(value) &&
+      /[!@#$%^&*().,/]/.test(value)
+    ) {
+      weak.style.display = "none";
+      medium.style.display = "inline";
+      strong.style.display = "none";
+    }
+    if (
+      value.length >= 6 &&
+      value.length <= 10 &&
+      /[a-z]/.test(value) &&
+      /[!@#$%^&*().,/]/.test(value)
+    ) {
+      weak.style.display = "none";
+      medium.style.display = "inline";
+      strong.style.display = "none";
+    }
+    if (
+      value.length >= 6 &&
+      value.length <= 10 &&
+      /[A-Z]/.test(value) &&
+      /[a-z]/.test(value) &&
+      /\d/.test(value)
+    ) {
+      weak.style.display = "none";
+      medium.style.display = "none";
+      strong.style.display = "inline";
+    }
+    if (
+      value.length >= 6 &&
+      value.length <= 10 &&
+      /[A-Z]/.test(value) &&
+      /[a-z]/.test(value) &&
+      /[!@#$%^&*().,/]/.test(value)
+    ) {
+      weak.style.display = "none";
+      medium.style.display = "none";
+      strong.style.display = "inline";
+    }
+  });
+</script>
+
+{% endblock form %}

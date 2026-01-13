@@ -1,0 +1,86 @@
+{% extends "set_password.html" %} {% block title %} eDocs - Academic Information
+{% endblock title %} {% block form %}
+
+<div class="set-pass-container">
+  <div class="block1">
+    <p id="logoTxt">eDocs</p>
+    <div class="txtBlock">
+      <p id="contentTxt">Academic Information</p>
+      <p id="blueTxt">Enter your identification number and department</p>
+    </div>
+  </div>
+  <div class="block2">
+    <form action="/set-password/id-department" method="post" id="userForm">
+      <div class="input-block">
+        <p id="label">Register Number / Staff ID</p>
+        <input
+          type="text"
+          id="idInput"
+          name="idno"
+          placeholder="ID Number Here"
+          value="{{id_no or ''}}"
+          pattern="[0-9]{6,10}"
+          title="ID Cannot contain any alphabetic characters"
+          required
+        />
+        {% if idError %}
+        <p id="errorTxt">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          ID does not match!
+        </p>
+        {% endif %}
+      </div>
+      <div class="input-block">
+        <p id="label">Department</p>
+        <select name="department" id="department" required>
+          <option value="null" hidden selected>--</option>
+          {% for dept in departments %}
+          <option value="{{dept}}">{{departments[dept]}}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button id="submitBtn" type="button">
+        <div
+          class="spinner-border"
+          style="display: none"
+          id="spinner"
+          role="status"
+        >
+          <span class="visually-hidden">Loading</span>
+        </div>
+        <span id="submitTxt">Next</span>
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+  const department = document.getElementById("department");
+  const submitBtn = document.getElementById("submitBtn");
+  const idInput = document.getElementById("idInput");
+  const errorTxt = document.getElementById("errorTxt");
+
+  idInput.addEventListener("input", () => {
+    if (idInput.value != "{{id_no}}") {
+      idInput.style.boxShadow = "none";
+      errorTxt.style.display = "none";
+    } else {
+      idInput.style.boxShadow = "0px 0px 0px 1px #da1e37;";
+      errorTxt.style.display = "inline";
+    }
+  });
+
+  department.addEventListener("change", () => {
+    department.style.boxShadow = "none";
+    submitBtn.type = "submit";
+  });
+
+  submitBtn.addEventListener("click", () => {
+    if (department.value === "null") {
+      department.style.boxShadow = "0px 0px 0px 1px #da1e37";
+      submitBtn.type = "button";
+    }
+  });
+</script>
+
+{% endblock form %}

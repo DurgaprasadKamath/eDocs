@@ -1,0 +1,121 @@
+{% extends "navbar.html" %} {% block title %} eDocs - Create Faculty Account {%
+endblock title %} {% block content %}
+
+<div class="create-account-main">
+  <div class="block1">
+    <button type="button" onclick="history.back()">
+      <i class="fa-solid fa-arrow-left"></i>
+    </button>
+    <p id="logoTxt">eDocs</p>
+    <div class="message-block">
+      <p id="title">Create a Faculty Account</p>
+      <p id="message">Enter the details</p>
+    </div>
+  </div>
+  <div class="block2">
+    <form action="/office/create/faculty" method="post" id="userForm">
+      <div class="input-block">
+        <p id="label">College Email</p>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          value="{{email or ''}}"
+          placeholder="Email Here"
+          required
+        />
+        {% if emailError %}
+        <p class="errorTxt" id="emailError">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          Account is already created!
+        </p>
+        {% endif %}
+      </div>
+      <div class="input-block">
+        <p id="label">Faculty ID</p>
+        <input
+          type="text"
+          id="id_no"
+          value="{{id_no or ''}}"
+          name="id_no"
+          pattern="[0-9]{6,10}"
+          placeholder="Enter ID Here"
+          title="ID Cannot contain any alphabetic characters"
+          required
+        />
+        {% if idError %}
+        <p class="errorTxt" id="idError">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          ID already exists!
+        </p>
+        {% endif %}
+      </div>
+      <div class="input-block">
+        <p id="label">Phone Number</p>
+        <input
+          type="tel"
+          name="phone"
+          placeholder="Phone Number Here"
+          pattern="[0-9]{10}"
+          minlength="10"
+          maxlength="10"
+          value="{{phone or ''}}"
+          title="Please match the phone number format"
+          required
+        />
+      </div>
+      <button id="submitBtn" type="submit">
+        <div
+          class="spinner-border"
+          style="display: none"
+          id="spinner"
+          role="status"
+        >
+          <span class="visually-hidden">Loading</span>
+        </div>
+        <span id="submitTxt">Create Account</span>
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+  const submitTxt = document.getElementById("submitTxt");
+  const spinner = document.getElementById("spinner");
+  const email = document.getElementById("email");
+  const id_no = document.getElementById("id_no");
+  const emailError = document.getElementById("emailError");
+  const idError = document.getElementById("idError");
+  const userForm = document.getElementById("userForm");
+
+  userForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    spinner.style.display = "inline-block";
+    submitTxt.style.display = "none";
+
+    setInterval(() => {
+      spinner.style.display = "none";
+      submitTxt.style.display = "inline";
+      this.submit();
+    }, 800);
+  });
+
+  email.addEventListener("input", () => {
+    if (email.value != "{{email}}") {
+      emailError.style.display = "none";
+    } else {
+      emailError.style.display = "block";
+    }
+  });
+
+  id_no.addEventListener("input", () => {
+    if (id_no.value != "{{id_no}}") {
+      idError.style.display = "none";
+    } else {
+      idError.style.display = "block";
+    }
+  });
+</script>
+
+{% endblock content %}

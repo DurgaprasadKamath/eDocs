@@ -1,0 +1,94 @@
+{% extends "navbar.html" %} {% block title %} eDocs - Manage {% endblock title
+%} {% block content %}
+
+<div class="manage-container">
+  <div class="title-bar">
+    <div class="block1">
+      <form action="/office/manage" method="post" id="filterForm">
+        <div class="search-bar">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input
+            name="searchInput"
+            type="search"
+            placeholder="Search"
+            id="searchInput"
+            value="{{searchInput or ''}}"
+            autofocus
+          />
+        </div>
+      </form>
+    </div>
+    <div class="block2">
+      <p id="name">Name</p>
+      <p id="email">Email</p>
+      <p id="id">ID</p>
+      <p id="phone">Phone Number</p>
+      <p id="department">Department</p>
+      <p id="role">Role</p>
+      <div class="accStatus">
+        <p>Account Status</p>
+      </div>
+      <div id="actions"></div>
+    </div>
+  </div>
+  <div class="allUser-block" id="allUser">
+    {% if isEmpty %}
+    <p id="isEmpty">No accounts</p>
+    {% else %} {% for user in allUser %}
+    <div class="user-list">
+      <p id="name">{{user.name or ''}}</p>
+      <p id="email">{{user.email}}</p>
+      <p id="id">{{user.id}}</p>
+      <p id="phone">{{user.phone}}</p>
+      <p id="department">{{departments[user.department] or ''}}</p>
+      <p id="role">{{roles[user.role]}}</p>
+      <div class="accStatus">
+        {% if user.password %}
+        <div class="status active">Active</div>
+        {% else %}
+        <div class="status inactive">Inactive</div>
+        {% endif %}
+      </div>
+      <div id="actions">
+        <form action="/delete/{{user.id}}" method="post">
+          <button type="submit" title="Delete Account">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </form>
+        <form action="/reset/{{user.id}}" method="post">
+          <button type="submit" title="Reset Account">
+            <i class="fa-solid fa-refresh"></i>
+          </button>
+        </form>
+      </div>
+    </div>
+    {% endfor %} {% endif %}
+  </div>
+</div>
+
+<script>
+  const filterForm = document.getElementById("filterForm");
+  const searchInput = document.getElementById("searchInput");
+  let submitTimer;
+
+  if (searchInput) {
+    const val = searchInput.value;
+    searchInput.value = "";
+    searchInput.value = val;
+  }
+
+  searchInput.addEventListener("input", () => {
+    clearTimeout(submitTimer);
+
+    submitTimer = setTimeout(() => {
+      if (searchInput.value.trim() != "") {
+        filterForm.submit();
+      }
+      if (searchInput.value == "") {
+        filterForm.submit();
+      }
+    }, 600);
+  });
+</script>
+
+{% endblock content %}

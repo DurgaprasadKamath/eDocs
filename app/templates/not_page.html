@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Page Not Found</title>
+    <link rel="stylesheet" href="/static/css/style.css" />
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="{{ url_for('static', path='/images/file-circle-check-solid.svg') }}"
+    />
+  </head>
+  <body
+    style="margin: 0%; width: 100%; height: 100vh; background-color: #fef9f5"
+  >
+    <div class="error-container">
+      <img
+        src="/static/images/pageNotCartoon.png"
+        alt="error image"
+        height="100"
+        width="100"
+      />
+      <p id="oopsTxt">Ooops, Lost in Space!</p>
+      <p id="goHomeTxt">
+        The page you're looking for isn't found.<br />We suggest you back to
+        home.
+      </p>
+      <a
+        href="/"
+        >Back to Home</a
+      >
+    </div>
+  </body>
+</html>

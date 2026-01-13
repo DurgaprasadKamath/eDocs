@@ -1,0 +1,61 @@
+{% extends "set_password.html" %}
+{% block title %}
+  eDocs - Basic Information
+{% endblock title %}
+{% block form %}
+<div class="set-pass-container">
+  <div class="block1">
+    <p id="logoTxt">eDocs</p>
+    <div class="txtBlock">
+      <p id="contentTxt">Basic Information</p>
+      <p id="blueTxt">Enter your birthday and gender</p>
+    </div>
+  </div>
+  <div class="block2">
+    <form action="/set-password/gender-birthday" method="post" id="userForm">
+      <div class="input-block">
+        <p id="label">Date of Birth</p>
+        <input type="date" name="dob" id="dob" max="{{todayDate}}" required />
+      </div>
+      <div class="input-block">
+        <p id="label">Gender</p>
+        <select name="gender" id="gender" required>
+          <option value="null" hidden selected>--</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+          <option value="Other">Others</option>
+        </select>
+      </div>
+      <button id="submitBtn" type="button">
+        <div
+          class="spinner-border"
+          style="display: none"
+          id="spinner"
+          role="status"
+        >
+          <span class="visually-hidden">Loading</span>
+        </div>
+        <span id="submitTxt">Next</span>
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+  const gender = document.getElementById("gender");
+  const submitBtn = document.getElementById("submitBtn");
+
+  gender.addEventListener("change", () => {
+    gender.style.boxShadow = "none";
+    submitBtn.type = "submit";
+    gender.title = "";
+  });
+
+  submitBtn.addEventListener("click", () => {
+    if (gender.value === "null") {
+      gender.style.boxShadow = "0px 0px 0px 1px #da1e37";
+      gender.title = "Select your gender";
+    }
+  });
+</script>
+{% endblock form %}

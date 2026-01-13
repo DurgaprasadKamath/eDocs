@@ -1,0 +1,67 @@
+{% extends "set_password.html" %}
+{% block title %}
+  eDocs - Account Setup
+{% endblock title %}
+{% block form %}
+<div class="set-pass-container">
+  <div class="block1">
+    <p id="logoTxt">eDocs</p>
+    <div class="txtBlock">
+      <p id="contentTxt">Set Password to your account</p>
+      <p id="blueTxt">Enter your email</p>
+    </div>
+  </div>
+  <div class="block2">
+    <form action="/set-password/email" method="post" id="userForm">
+      <div class="input-block">
+        <p id="label">College Email</p>
+        <input
+          type="email"
+          id="emailInput"
+          name="email"
+          value="{{email or ''}}"
+          placeholder="Email Here"
+          required
+        />
+        {% if emailError %}
+        <p id="emailErrorTxt">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          Account does not exists!
+        </p>
+        {% endif %}
+      </div>
+      <button type="submit">
+        <div
+          class="spinner-border"
+          style="display: none"
+          id="spinner"
+          role="status"
+        >
+          <span class="visually-hidden">Loading</span>
+        </div>
+        <span id="submitTxt">Next</span>
+      </button>
+    </form>
+  </div>
+</div>
+{% if passwordExists %}
+  <div class="passExist-main">
+    <div class="message-context">
+      <p id="title"><i class="fa-solid fa-lock"></i>Secure access</p>
+      <p id="message">This account is already secured with password.<br>Please <a href="/login">Log In</a> to continue</p>
+    </div>
+  </div>
+{% endif %}
+<script>
+  const emailErrorTxt = document.getElementById("emailErrorTxt");
+  const emailInput = document.getElementById("emailInput")
+
+  emailInput.addEventListener("input", () => {
+    if (emailInput.value != "{{email}}") {
+      emailErrorTxt.style.display = "none";
+    } else {
+      emailErrorTxt.style.display = "block";
+    }
+  });
+</script>
+{% endblock form %}

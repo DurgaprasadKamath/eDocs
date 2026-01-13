@@ -1,0 +1,49 @@
+{% extends "set_password.html" %}
+{% block title %}
+  eDocs - Identifiable Information
+{% endblock title %}
+{% block form %}
+<div class="set-pass-container">
+  <div class="block1">
+    <p id="logoTxt">eDocs</p>
+    <div class="txtBlock">
+      <p id="contentTxt">Identifiable Information</p>
+      <p id="blueTxt">Enter your name</p>
+    </div>
+  </div>
+  <div class="block2">
+    <form action="/set-password/name" method="post" id="userForm">
+      <div class="input-block">
+        <p id="label">First Name</p>
+        <input
+          type="text"
+          id="fnameInput"
+          name="fname"
+          placeholder="First Name Here"
+          required
+        />
+      </div>
+      <div class="input-block">
+        <p id="label">Last Name</p>
+        <input
+          type="text"
+          id="lnameInput"
+          name="lname"
+          placeholder="Last Name Here (Optional)"
+        />
+      </div>
+      <button type="submit">
+        <div
+          class="spinner-border"
+          style="display: none"
+          id="spinner"
+          role="status"
+        >
+          <span class="visually-hidden">Loading</span>
+        </div>
+        <span id="submitTxt">Next</span>
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock form %}

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Internal Server Error</title>
+    <link rel="stylesheet" href="/static/css/style.css" />
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="{{ url_for('static', path='/images/file-circle-check-solid.svg') }}"
+    />
+  </head>
+  <body style="margin: 0%; width: 100%; height: 100vh;background-color: #fdf8f4;">
+    <div class="error-container">
+      <img
+        src="/static/images/sleepCartoon.png"
+        alt="error image"
+        height="100"
+        width="100"
+      />
+      <p id="oopsTxt"><i class="fa-solid fa-triangle-exclamation"></i>Uh-Oh, An unexpected error occurred!</p>
+      <p id="goHomeTxt">We're facing an internal server problem. <br>Please try again.</p>
+    </div>
+  </body>
+</html>
