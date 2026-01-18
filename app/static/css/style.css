@@ -1546,7 +1546,82 @@ nav.navbar-main {
   }
 }
 
-
+.upload-main-container {
+  width: 100%;
+  height: 92vh;
+  position: absolute;
+  top: 8vh;
+  left: 0%;
+  display: flex;
+  justify-content: center;
+  form {
+    width: 35%;
+    height: 70%;
+    align-self: center;
+    padding: 0% 3%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3vh;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0px 0px 5px var(--text-grey-color);
+    .input-block {
+      display: flex;
+      flex-direction: column;
+      gap: 1vh;
+      p#label {
+        margin: 0%;
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: var(--primary-color);
+      }
+      input,
+      select,
+      textarea {
+        outline: none;
+        border: none;
+        border-radius: 5px;
+        background-color: var(--input-bg);
+        padding: 1.5% 3%;
+        resize: none;
+        scrollbar-width: none;
+        font-size: 1rem;
+        font-weight: 550;
+      }
+      select {
+        text-align: center;
+        option {
+          text-align: center;
+          font-weight: 500;
+          font-size: 0.9rem;
+        }
+      }
+      ::placeholder {
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: var(--text-grey-color);
+      }
+    }
+    button[type='submit']{
+      width: 60%;
+      border-radius: 30px;
+      outline: none;
+      border: none;
+      background-color: var(--primary-color);
+      color: white;
+      font-size: 0.9rem;
+      font-weight: 600;
+      align-self: center;
+      padding: 2% 3%;
+      transition: 0.3s;
+    }
+    button[type='submit']:hover{
+      background-color: var(--secondary-color);
+      transition: 0.3s;
+    }
+  }
+}
 
 @keyframes modalOpenAnim {
   0% {

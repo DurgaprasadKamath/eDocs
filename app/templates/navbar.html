@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -32,23 +32,7 @@
   <body>
     <nav class="navbar-main">
       <div class="logo-text">
-        <a
-          href="
-          {% if role == 'principal' %}
-          /principal/dashboard
-          {% elif role == 'office_staff' %}
-          /office/dashboard
-          {% elif role == 'hod' %}
-          /hod/dashboard
-          {% elif role == 'faculty' %}
-          /faculty/dashboard
-          {% elif role == 'student' %}
-          /student/dashboard
-          {% endif %}
-          "
-        >
-          eDocs
-        </a>
+        <a href="/"> eDocs </a>
       </div>
       <div class="navbar-items">
         {% if role == 'office_staff' %}

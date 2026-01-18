@@ -687,3 +687,81 @@ async def upload_profile(
     crud.add_profile_pic(db, id, file_path)
 
     return RedirectResponse(url="/profile", status_code=303)
+
+@router.post("/delete-profile")
+async def delete_profile(
+    request: Request,
+    id: str = Form(...),
+    db: Session = Depends(database.get_db)
+):
+    picPath = crud.get_profile_path(db, id)
+    if picPath:
+        imgPath = picPath.path
+        os.remove(imgPath)
+        db.delete(picPath)
+        db.commit()
+    
+    return RedirectResponse("/profile", status_code=303)
+
+@router.post("/upload-document")
+async def upload_document(
+    request: Request,
+    email: str = Form(...),
+    appType: str = Form(...),
+    docTitle: str = Form(...),
+    description: str = Form(...),
+    docFile: UploadFile = File(...),
+    db: Session = Depends(database.get_db)
+):    
+    app_list = db.query(
+        models.DocumentInfo
+    ).order_by(
+        models.DocumentInfo.date.desc()
+    ).first()
+    
+    year = datetime.today().strftime("%Y")
+    user = crud.get_user_by_email(db, email)
+    
+    if not app_list:
+        num = 10001
+        app_no = f"EDOC-{year}-0{num}"
+    else:
+        app_no = app_list.app_no
+        app_no = str(app_no)
+        num = app_no[11:]
+        num = int(num)
+        num += 1
+        app_no = f"EDOC-{year}-0{num}"
+    
+    _, ext = os.path.splitext(docFile.filename)
+    
+    app_name = f"{app_no}{ext}"
+    app_path = f"app/static/document_uploads/{app_name}"
+    
+    with open(app_path, "wb") as buffer:
+        shutil.copyfileobj(docFile.file, buffer)
+        
+    if appType == 'DOC_VER' or appType == 'EVE_REQ':
+        rec_role = 'office_staff'
+    elif appType == 'LEA_REQ' or appType == 'INT_REQ' or appType == 'WORK_REQ':
+        rec_role = 'hod'
+        
+    appData = schemas.Documents(
+        app_no = app_no,
+        app_path = app_path,
+        app_type = appType,
+        app_title = docTitle,
+        description = description,
+        sender_email = email,
+        sender_name = user.name,
+        sender_id_no = user.id,
+        sender_department = user.department,
+        sender_role = user.role,
+        rec_role = rec_role,
+        status = "Pending",
+        date = datetime.now()
+    )
+    
+    crud.add_document(db, appData)
+
+    return RedirectResponse(url="/", status_code=303)

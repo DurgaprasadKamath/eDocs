@@ -427,7 +427,7 @@ async def read_office_upload(
         return RedirectResponse("/", status_code=303)
     if not email:
         return RedirectResponse(url="/login", status_code=303)
-    
+
     return templates.TemplateResponse(
         "/office_staff/upload.html",
         {
@@ -482,7 +482,8 @@ async def read_std_home(
 
 @app.get("/student/upload", response_class=HTMLResponse)
 async def read_std_home(
-    request: Request
+    request: Request,
+    db: Session = Depends(database.get_db)
 ):
     email = request.session.get('email')
     role = request.session.get('role')
@@ -497,7 +498,8 @@ async def read_std_home(
         {
             "request": request,
             "page": "upload",
-            "role": role
+            "role": role,
+            "email": email,
         }
     )
 

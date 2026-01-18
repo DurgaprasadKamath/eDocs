@@ -1,21 +1,63 @@
-{% extends "navbar.html" %} {% block title %} eDocs - Upload {% endblock
-title %} {% block content %}
+{% extends "navbar.html" %} {% block title %} eDocs - Upload {% endblock title
+%} {% block content %}
 
 <div class="upload-main-container">
-    <form action="/upload-document" method="post">
-        <div class="input-block">
-            <p id="label">Application Type</p>
-            <select name="appType" id="appType" required>
-                <option value="null" hidden selected>--</option>
-                <option value="SCHO_VER">Scholarship Verification</option>
-                <option value="LEA_REQ">Leave Request</option>
-                <option value="EVE_REQ">Event Request</option>
-                <option value="INT_REQ">Internship Request</option>
-                <option value="WORK_REQ">Workshop Request</option>
-                <option value="OTHER">Other</option>
-            </select>
-        </div>
-    </form>
+  <form
+    action="/upload-document"
+    method="post"
+    enctype="multipart/form-data"
+    id="uploadForm"
+  >
+    <input type="email" value="{{email}}" name="email" hidden />
+    <div class="input-block">
+      <p id="label">Application Type</p>
+      <select name="appType" id="appType" required>
+        <option value="null" hidden selected>--</option>
+        <option value="DOC_VER">Document Verification</option>
+        <option value="LEA_REQ">Leave Request</option>
+        <option value="EVE_REQ">Event Request</option>
+        <option value="INT_REQ">Internship Request</option>
+        <option value="WORK_REQ">Workshop Request</option>
+      </select>
+    </div>
+    <div class="input-block">
+      <p id="label">Document Title</p>
+      <input type="text" name="docTitle" placeholder="Title Here" required />
+    </div>
+    <div class="input-block">
+      <p id="label">Description / Reason</p>
+      <textarea
+        name="description"
+        placeholder="Description / Reason Here"
+        rows="3"
+        required
+      ></textarea>
+    </div>
+    <div class="input-block">
+      <p id="label">Attach Document</p>
+      <input type="file" name="docFile" placeholder="Upload Here" required />
+    </div>
+    <button id="submitBtn" type="submit">Submit Application</button>
+  </form>
 </div>
+
+<script>
+  const submitBtn = document.getElementById("submitBtn");
+  const appType = document.getElementById("appType");
+
+  appType.addEventListener("change", () => {
+    appType.style.boxShadow = "none";
+  });
+
+  submitBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+
+    if (appType.value === "null") {
+      appType.style.boxShadow = "0px 0px 0px 1px #da1e37";
+      return;
+    }
+    document.getElementById("uploadForm").submit();
+  });
+</script>
 
 {% endblock content %}

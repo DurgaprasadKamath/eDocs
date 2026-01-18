@@ -188,3 +188,13 @@ def get_profile_path(db: Session, id: str):
     ).filter(
         models.ProfilePic.id == id
     ).first()
+    
+def add_document(
+    db: Session,
+    appData: schemas.Documents
+):
+    db_appData = models.DocumentInfo(**appData.dict())
+    db.add(db_appData)
+    db.commit()
+    db.refresh(db_appData)
+    return db_appData
