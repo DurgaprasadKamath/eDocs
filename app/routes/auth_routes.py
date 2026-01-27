@@ -748,7 +748,7 @@ async def delete_profile(
     
     return RedirectResponse("/profile", status_code=303)
 
-@router.post("/upload-document")
+@router.post("/student/upload")
 async def upload_document(
     request: Request,
     email: str = Form(...),

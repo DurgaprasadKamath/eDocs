@@ -19,6 +19,7 @@
       </form>
     </div>
     <div class="block2">
+      <p id="index"></p>
       <p id="appNo">Application No</p>
       <p id="appType">Application Type</p>
       <p id="name">Name</p>
@@ -34,6 +35,7 @@
     {% endif %}
     {% for report in allReports %}
     <div class="report-block">
+      <p id="index">{{loop.index}}</p>
       <p id="appNo">{{report.app_no}}</p>
       <p id="appType">{{docType[report.app_type]}}</p>
       <p id="name">{{report.sender_name}}</p>

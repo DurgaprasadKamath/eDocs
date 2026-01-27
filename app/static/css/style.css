@@ -919,8 +919,8 @@ nav.navbar-main {
 }
 
 .create-main {
-  width: 100vw;
-  height: 92vh;
+  width: 100%;
+  height: 92%;
   position: fixed;
   top: 8vh;
   left: 0%;
@@ -938,7 +938,7 @@ nav.navbar-main {
     border-radius: 20px;
     box-shadow: 0px 0px 10px var(--text-grey-color);
     align-self: center;
-    background-color: var(--body-background);
+    background-color: white;
     padding: 0% 1%;
     p#title {
       width: 80%;
@@ -1393,7 +1393,7 @@ nav.navbar-main {
     top: 23vh;
     padding-bottom: 1%;
     z-index: 1;
-    p#empty{
+    p#empty {
       margin: 0%;
       font-size: 0.9rem;
       font-weight: 550;
@@ -1431,12 +1431,16 @@ nav.navbar-main {
       }
     }
   }
+  p#index {
+    width: 3%;
+    color: var(--text-grey-color);
+  }
   p#appNo {
-    width: 20%;
+    width: 18%;
   }
   p#appType,
   p#name {
-    width: 15%;
+    width: 16%;
   }
   p#id,
   p#date,
@@ -1501,15 +1505,68 @@ nav.navbar-main {
   }
 }
 
-.view-doc-main{
+.view-doc-main {
   height: 100vh;
   width: 100vw;
   position: fixed;
   top: 0%;
   left: 0%;
-  iframe{
+  iframe {
     width: 100%;
     height: 100%;
+  }
+}
+
+.upload-modal-main {
+  position: fixed;
+  top: 8vh;
+  left: 0%;
+  height: 92%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  background-color: #5959598a;
+  .modal-content {
+    animation: modalOpenAnim 0.5s ease;
+    width: 30%;
+    height: 50%;
+    background-color: white;
+    align-self: center;
+    border-radius: 20px;
+    box-shadow: 0px 0px 10px var(--text-grey-color);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2.2vh;
+    padding: 0% 1%;
+    a {
+      text-decoration: none;
+      align-self: center;
+      min-width: 15vw;
+      max-width: 25vw;
+      background-color: var(--primary-color);
+      color: white;
+      font-size: 1.1rem;
+      font-weight: 550;
+      padding: 2.3%;
+      text-align: center;
+      border-radius: 30px;
+      transition: 0.3s;
+    }
+    a:hover {
+      background-color: var(--secondary-color);
+      transform: 0.3s;
+    }
+    p#title {
+      margin: 0%;
+      width: 80%;
+      padding: 2.5%;
+      border-bottom: 2px solid var(--text-grey-color);
+      text-align: center;
+      align-self: center;
+      font-weight: 600;
+      font-size: 1.25rem;
+    }
   }
 }
 
