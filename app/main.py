@@ -562,6 +562,90 @@ async def read_office_upload(
         }
     )
 
+@app.get("/office/upload/student", response_class=HTMLResponse)
+async def read_upload_student(
+    request: Request
+):
+    email = request.session.get('email')
+    role = request.session.get('role')
+    
+    if role != "office_staff":
+        return RedirectResponse("/", status_code=303)
+    if not email:
+        return RedirectResponse(url="/login", status_code=303)
+
+    return templates.TemplateResponse(
+        "/office_staff/upload_student.html",
+        {
+            "request": request,
+            "page": "upload",
+            "role": role
+        }
+    )
+
+@app.get("/office/upload/teaching-staff", response_class=HTMLResponse)
+async def read_upload_teaching(
+    request: Request
+):
+    email = request.session.get('email')
+    role = request.session.get('role')
+    
+    if role != "office_staff":
+        return RedirectResponse("/", status_code=303)
+    if not email:
+        return RedirectResponse(url="/login", status_code=303)
+
+    return templates.TemplateResponse(
+        "/office_staff/upload_teaching.html",
+        {
+            "request": request,
+            "page": "upload",
+            "role": role
+        }
+    )
+
+@app.get("/office/upload/department", response_class=HTMLResponse)
+async def read_upload_department(
+    request: Request
+):
+    email = request.session.get('email')
+    role = request.session.get('role')
+    
+    if role != "office_staff":
+        return RedirectResponse("/", status_code=303)
+    if not email:
+        return RedirectResponse(url="/login", status_code=303)
+
+    return templates.TemplateResponse(
+        "/office_staff/upload_department.html",
+        {
+            "request": request,
+            "page": "upload",
+            "role": role
+        }
+    )
+
+@app.get("/office/upload/all", response_class=HTMLResponse)
+async def read_upload_all(
+    request: Request
+):
+    email = request.session.get('email')
+    role = request.session.get('role')
+    
+    if role != "office_staff":
+        return RedirectResponse("/", status_code=303)
+    if not email:
+        return RedirectResponse(url="/login", status_code=303)
+
+    return templates.TemplateResponse(
+        "/office_staff/upload_all.html",
+        {
+            "request": request,
+            "page": "upload",
+            "role": role
+        }
+    )
+
 @app.get("/office/reports", response_class=HTMLResponse)
 async def read_office_reports(
     request: Request,
