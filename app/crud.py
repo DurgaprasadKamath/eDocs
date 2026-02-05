@@ -213,18 +213,11 @@ def pending_docs_office(db: Session):
         models.DocumentInfo.date.asc()
     ).all()
     
-def get_pending_doc(db: Session, appNo: str):
-    return db.query(
-        models.DocumentInfo
-    ).filter(
-        models.DocumentInfo.app_no == appNo
-    ).first()
-    
 def get_office_reports(db: Session):
     return db.query(
         models.DocumentInfo
     ).filter(
-        models.DocumentInfo.rec_role == "office_staff"
+        models.DocumentInfo.rec_role == "office_staff",
     ).order_by(
         models.DocumentInfo.app_no.asc()
     ).all()
@@ -242,4 +235,20 @@ def office_filter_reports(db: Session, searchInput: str):
         )
     ).order_by(
         models.DocumentInfo.app_no.asc()
+    ).all()
+    
+def get_student_reports(
+    db: Session,
+    stdEmail: str,
+    stdDept: str
+):
+    return db.query(models.DocumentInfo).filter(
+        or_(
+            models.DocumentInfo.rec_role == "all",
+            models.DocumentInfo.rec_role == "student",
+            models.DocumentInfo.sender_email == stdEmail,
+            models.DocumentInfo.rec_role == stdDept
+        )
+    ).order_by(
+        models.DocumentInfo.date.asc()    
     ).all()

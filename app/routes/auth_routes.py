@@ -881,6 +881,43 @@ async def view_doc(
 
 @router.post("/office/upload/student")
 async def upload_student_doc(
-    request: Request
+    request: Request,
+    email: str = Form(...),
+    docTitle: str = Form(...),
+    docCategory: str = Form(...),
+    docDesc: str = Form(...),
+    docFile: UploadFile = File(...),
+    db: Session = Depends(database.get_db)
 ):
+    user = crud.get_user_by_email(db, email)
+    
+    app_no = get_app_no(db)
+
+    _, ext = os.path.splitext(docFile.filename)
+
+    app_name = f"{app_no}{ext}"
+    app_path = f"app/static/document_uploads/{app_name}"
+
+    with open(app_path, "wb") as buffer:
+        shutil.copyfileobj(docFile.file, buffer)
+
+    appData = schemas.Documents(
+        app_no = app_no,
+        app_path = app_path,
+        app_type = docCategory,
+        app_title = docTitle,
+        description = docDesc,
+        sender_email = email,
+        sender_name = user.name,
+        sender_id_no = user.id,
+        sender_department = user.department,
+        sender_role = user.role,
+        rec_role = "student",
+        status = "",
+        rejectTxt = "",
+        date = datetime.now()
+    )
+    
+    crud.add_document(db, appData)
+
     return RedirectResponse(url="/office/upload/student", status_code=303)

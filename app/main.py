@@ -558,6 +558,7 @@ async def read_office_upload(
         {
             "request": request,
             "page": "upload",
+            "email": email,
             "role": role
         }
     )
@@ -579,6 +580,7 @@ async def read_upload_student(
         {
             "request": request,
             "page": "upload",
+            "email": email,
             "role": role
         }
     )
@@ -600,6 +602,7 @@ async def read_upload_teaching(
         {
             "request": request,
             "page": "upload",
+            "email": email,
             "role": role
         }
     )
@@ -621,6 +624,7 @@ async def read_upload_department(
         {
             "request": request,
             "page": "upload",
+            "email": email,
             "role": role
         }
     )
@@ -642,6 +646,7 @@ async def read_upload_all(
         {
             "request": request,
             "page": "upload",
+            "email": email,
             "role": role
         }
     )
@@ -705,7 +710,8 @@ async def view_document(
 #student backend
 @app.get("/student/dashboard", response_class=HTMLResponse)
 async def read_std_home(
-    request: Request
+    request: Request,
+    db: Session = Depends(database.get_db)
 ):
     email = request.session.get('email')
     role = request.session.get('role')
@@ -714,13 +720,17 @@ async def read_std_home(
         return RedirectResponse(url="/", status_code=303)
     if not email:
         return RedirectResponse(url="/login", status_code=303)
+    
+    user = crud.get_user_by_email(db, email)
+    stdDocs = crud.get_student_reports(db, email, user.department)
 
     return templates.TemplateResponse(
         "student/index.html",
         {
             "request": request,
             "page": "dashboard",
-            "role": role
+            "role": role,
+            "stdDocs": stdDocs
         }
     )
 

@@ -9,4 +9,9 @@ title %} {% block content %}
 >
 </iframe> -->
 
+{% for docs in stdDocs %}
+  {{docs.app_no}}
+  {{docs.app_title}}
+{% endfor %}
+
 {% endblock content %}
