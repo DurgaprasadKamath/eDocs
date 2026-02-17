@@ -213,6 +213,14 @@ def pending_docs_office(db: Session):
         models.DocumentInfo.date.asc()
     ).all()
     
+def get_pending_docs(
+    db: Session,
+    appNo: str
+):
+    return db.query(models.DocumentInfo).filter(
+        models.DocumentInfo.app_no == appNo
+    ).first()
+
 def get_office_reports(db: Session):
     return db.query(
         models.DocumentInfo
@@ -237,7 +245,7 @@ def office_filter_reports(db: Session, searchInput: str):
         models.DocumentInfo.app_no.asc()
     ).all()
     
-def get_student_reports(
+def  get_student_reports(
     db: Session,
     stdEmail: str,
 ):

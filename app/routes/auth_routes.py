@@ -846,7 +846,14 @@ async def approve_app(
     appNo: str,
     db: Session = Depends(database.get_db)
 ):
-    return RedirectResponse(url="/", status_code=303)
+    # return RedirectResponse(url="/", status_code=303)
+    appDoc = crud.get_pending_docs(db, appNo)
+    if appDoc:
+        appDoc.status = "Approved"
+        db.commit()
+        db.refresh(appDoc)
+        return RedirectResponse(url="/", status_code=303)
+    return RedirectResponse(url="/office/view/{appNo}", status_code=303)
 
 @router.post("/reject/{appNo}")
 async def reject_app(
@@ -855,7 +862,7 @@ async def reject_app(
     rejectReason: str = Form(...),
     db: Session = Depends(database.get_db)
 ):
-    appDoc = crud.get_pending_doc(db, appNo)
+    appDoc = crud.get_pending_docs(db, appNo)
     if appDoc:
         appDoc.rejectTxt = rejectReason
         appDoc.status = "Rejected"
@@ -870,7 +877,7 @@ async def view_doc(
     appNo: str,
     db: Session = Depends(database.get_db)
 ):
-    appDoc = crud.get_pending_doc(db, appNo)
+    appDoc = crud.get_pending_docs(db, appNo)
     if appDoc:
         appDoc.status = "Under Process"
         db.commit()

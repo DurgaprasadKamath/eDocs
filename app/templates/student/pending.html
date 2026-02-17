@@ -6,7 +6,7 @@ endblock title %} {% block content %}
   <div class="pending-block">
     <div class="value-block">
       <p id="label">Application No.:</p>
-      <p id="value">{{doc.app_no}}</p>
+      <p id="value-appno">{{doc.app_no}}</p>
     </div>
     <div class="value-block">
       <p id="label">Application Type:</p>
@@ -14,11 +14,11 @@ endblock title %} {% block content %}
     </div>
     <div class="value-block">
       <p id="label">Submitted On:</p>
-      <p id="value">{{doc.date}}</p>
+      <p id="value">{{doc.date.strftime('%B %d, %Y')}}</p>
     </div>
     <div class="value-block">
-      <p id="label">Status</p>
-      <p id="value">{{doc.status}}</p>
+      <p id="label">Status:</p>
+      <p id="value-status">{{doc.status}}</p>
     </div>
     <a href="/view/{{doc.app_no}}" target="_blank">View Application</a>
   </div>
