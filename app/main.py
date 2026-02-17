@@ -721,8 +721,8 @@ async def read_std_home(
     if not email:
         return RedirectResponse(url="/login", status_code=303)
     
-    user = crud.get_user_by_email(db, email)
-    stdDocs = crud.get_student_reports(db, email, user.department)
+    # user = crud.get_user_by_email(db, email)
+    stdDocs = crud.get_student_reports(db, email)
 
     return templates.TemplateResponse(
         "student/index.html",
@@ -757,7 +757,33 @@ async def read_std_home(
         }
     )
 
-@app.get("/student/approved", response_class=HTMLResponse)
+@app.get("/student/pending", response_class=HTMLResponse)
+async def read_std_home(
+    request: Request,
+    db: Session = Depends(database.get_db)
+):
+    email = request.session.get('email')
+    role = request.session.get('role')
+
+    if role != "student":
+        return RedirectResponse(url="/", status_code=303)
+    if not email:
+        return RedirectResponse(url="/login", status_code=303)
+    
+    pendingDocs = crud.get_student_pending_docs(db, email)
+
+    return templates.TemplateResponse(
+        "student/pending.html",
+        {
+            "request": request,
+            "page": "pending",
+            "role": role,
+            "pendingDocs": pendingDocs,
+            "docType": docTypes
+        }
+    )
+
+@app.get("/student/inbox", response_class=HTMLResponse)
 async def read_std_home(
     request: Request
 ):
@@ -770,10 +796,10 @@ async def read_std_home(
         return RedirectResponse(url="/login", status_code=303)
 
     return templates.TemplateResponse(
-        "student/approved.html",
+        "student/inbox.html",
         {
             "request": request,
-            "page": "approved",
+            "page": "inbox",
             "role": role
         }
     )

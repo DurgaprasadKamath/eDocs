@@ -240,15 +240,41 @@ def office_filter_reports(db: Session, searchInput: str):
 def get_student_reports(
     db: Session,
     stdEmail: str,
-    stdDept: str
 ):
     return db.query(models.DocumentInfo).filter(
-        or_(
-            models.DocumentInfo.rec_role == "all",
-            models.DocumentInfo.rec_role == "student",
+        and_(
             models.DocumentInfo.sender_email == stdEmail,
-            models.DocumentInfo.rec_role == stdDept
+            models.DocumentInfo.status == "Approved"
         )
     ).order_by(
         models.DocumentInfo.date.asc()    
     ).all()
+    
+def get_student_pending_docs(
+    db: Session,
+    stdEmail: str,
+):
+    return db.query(models.DocumentInfo).filter(
+        and_(
+            models.DocumentInfo.sender_email == stdEmail,
+            models.DocumentInfo.status == "Pending"
+        )
+    ).order_by(
+        models.DocumentInfo.date.asc()
+    ).all()
+    
+def get_student_inbox(
+    db: Session,
+    stdEmail: str,
+    stdDept: str
+):
+    return db.query(models.DocumentInfo).filter(
+        and_(
+            or_(
+                models.DocumentInfo.rec_role == "all",
+                models.DocumentInfo.rec_role == "student",
+                models.DocumentInfo.rec_role == stdDept
+            ),
+            models.DocumentInfo.sender_email == stdEmail
+        )
+    )

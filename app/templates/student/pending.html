@@ -1,0 +1,28 @@
+{% extends "navbar.html" %} {% block title %} eDocs - Pending Documents {%
+endblock title %} {% block content %}
+
+<div class="pending-main-container">
+  {% for doc in pendingDocs %}
+  <div class="pending-block">
+    <div class="value-block">
+      <p id="label">Application No.:</p>
+      <p id="value">{{doc.app_no}}</p>
+    </div>
+    <div class="value-block">
+      <p id="label">Application Type:</p>
+      <p id="value">{{docType[doc.app_type]}}</p>
+    </div>
+    <div class="value-block">
+      <p id="label">Submitted On:</p>
+      <p id="value">{{doc.date}}</p>
+    </div>
+    <div class="value-block">
+      <p id="label">Status</p>
+      <p id="value">{{doc.status}}</p>
+    </div>
+    <a href="/view/{{doc.app_no}}" target="_blank">View Application</a>
+  </div>
+  {% endfor %}
+</div>
+
+{% endblock content %}
