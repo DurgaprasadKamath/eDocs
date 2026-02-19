@@ -844,16 +844,45 @@ async def delete_app(
 async def approve_app(
     request: Request,
     appNo: str,
+    appPath: str = Form(...),
     db: Session = Depends(database.get_db)
 ):
-    # return RedirectResponse(url="/", status_code=303)
+    import fitz
+    appPath = 'app' + appPath
+    doc = fitz.open(appPath)
+    sealPath = 'app/static/images/approvedSeal.png'
+    
+    for page in doc:
+        rect = page.rect
+        
+        img_width = 120
+        img_height = 120
+        
+        x = rect.width - img_width - 20
+        y = 20
+        
+        img_rect = fitz.Rect(x, y, x + img_width, y + img_height)
+
+        page.insert_image(
+            img_rect,
+            filename=sealPath,
+            overlay=True
+        )
+        
+    temp_path = appPath.replace(".pdf", "_temp.pdf")
+    doc.save(temp_path)
+    doc.close()
+
+    os.replace(temp_path, appPath)
+    
     appDoc = crud.get_pending_docs(db, appNo)
     if appDoc:
         appDoc.status = "Approved"
+        appDoc.app_path = appPath
         db.commit()
         db.refresh(appDoc)
-        return RedirectResponse(url="/", status_code=303)
-    return RedirectResponse(url="/office/view/{appNo}", status_code=303)
+    
+    return RedirectResponse(url='/', status_code=303)
 
 @router.post("/reject/{appNo}")
 async def reject_app(

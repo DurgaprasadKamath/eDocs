@@ -75,6 +75,7 @@
             Reject
           </button>
           <form action="/approve/{{appNo}}" method="post">
+            <input type="text" value="{{appPath}}" name="appPath" hidden>
             <button id="approveBtn" type="submit">Approve</button>
           </form>
           <!-- <form action="/delete-doc/{{appNo}}" id="deleteForm" method="post">

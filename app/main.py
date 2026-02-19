@@ -108,6 +108,49 @@ async def refresh_office_home(db: Session):
 async def sse_endpoint(db: Session = Depends(database.get_db)):
     return EventSourceResponse(refresh_office_home(db))
 
+async def refresh_page_student(db: Session):
+    prevApprovedCount, prevRejectCount, prevUnderProcessCount, prevPendingCount = (
+        db.query(models.DocumentInfo).filter(
+            models.DocumentInfo.status == "Approved"
+        ).count(),
+        db.query(models.DocumentInfo).filter(
+            models.DocumentInfo.status == "Rejected"
+        ).count(),
+        db.query(models.DocumentInfo).filter(
+            models.DocumentInfo.status == "Under Process"
+        ).count(),
+        db.query(models.DocumentInfo).filter(
+            models.DocumentInfo.status == "Pending"
+        ).count()
+    )
+    while True:
+        await asyncio.sleep(2)
+        curApprovedCount, curRejectCount, curUnderProcessCount, curPendingCount = (
+            db.query(models.DocumentInfo).filter(
+                models.DocumentInfo.status == "Approved"
+            ).count(),
+            db.query(models.DocumentInfo).filter(
+                models.DocumentInfo.status == "Rejected"
+            ).count(),
+            db.query(models.DocumentInfo).filter(
+                models.DocumentInfo.status == "Under Process"
+            ).count(),
+            db.query(models.DocumentInfo).filter(
+                models.DocumentInfo.status == "Pending"
+            ).count()
+        )
+        if curApprovedCount != prevApprovedCount or curRejectCount != prevRejectCount or curUnderProcessCount != prevUnderProcessCount or curPendingCount != prevPendingCount:
+            prevApprovedCount, prevRejectCount, prevUnderProcessCount, prevPendingCount = curApprovedCount, curRejectCount, curUnderProcessCount, curPendingCount
+            
+            yield {
+                "event": "db_change",
+                "data": "database updated"
+            }
+            
+@app.get("/refresh-student")
+async def sse_endpoint(db: Session = Depends(database.get_db)):
+    return EventSourceResponse(refresh_page_student(db))
+
 async def refresh_office_reports(db: Session):
     prev_rep_count = db.query(models.DocumentInfo).filter(
         models.DocumentInfo.rec_role == "office_staff"
@@ -721,8 +764,7 @@ async def read_std_home(
     if not email:
         return RedirectResponse(url="/login", status_code=303)
     
-    # user = crud.get_user_by_email(db, email)
-    stdDocs = crud.get_student_reports(db, email)
+    stdApprovedDocs = crud.get_student_approved_docs(db, email)
 
     return templates.TemplateResponse(
         "student/index.html",
@@ -730,7 +772,8 @@ async def read_std_home(
             "request": request,
             "page": "dashboard",
             "role": role,
-            "stdDocs": stdDocs
+            "stdApprovedDocs": stdApprovedDocs,
+            "docType": docTypes
         }
     )
 
@@ -806,7 +849,8 @@ async def read_std_home(
 
 @app.get("/student/reports", response_class=HTMLResponse)
 async def read_std_home(
-    request: Request
+    request: Request,
+    db: Session = Depends(database.get_db)
 ):
     email = request.session.get('email')
     role = request.session.get('role')
@@ -815,12 +859,16 @@ async def read_std_home(
         return RedirectResponse(url="/", status_code=303)
     if not email:
         return RedirectResponse(url="/login", status_code=303)
+    
+    allReports = crud.get_student_all_reports(db, email)
 
     return templates.TemplateResponse(
         "student/reports.html",
         {
             "request": request,
             "page": "reports",
-            "role": role
+            "role": role,
+            "allReports": allReports,
+            "docType": docTypes
         }
     )

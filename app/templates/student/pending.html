@@ -18,11 +18,23 @@ endblock title %} {% block content %}
     </div>
     <div class="value-block">
       <p id="label">Status:</p>
-      <p id="value-status">{{doc.status}}</p>
+      <p id="value-status-pending">{{doc.status}}</p>
     </div>
     <a href="/view/{{doc.app_no}}" target="_blank">View Application</a>
   </div>
   {% endfor %}
 </div>
+
+<script>
+  const eventSource = new EventSource("/refresh-student");
+
+  eventSource.addEventListener("db_change", function (event) {
+    location.reload();
+  });
+
+  eventSource.onerror = function () {
+    console.log("SSE connection lost");
+  };
+</script>
 
 {% endblock content %}

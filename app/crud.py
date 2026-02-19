@@ -245,7 +245,7 @@ def office_filter_reports(db: Session, searchInput: str):
         models.DocumentInfo.app_no.asc()
     ).all()
     
-def  get_student_reports(
+def  get_student_approved_docs(
     db: Session,
     stdEmail: str,
 ):
@@ -286,3 +286,13 @@ def get_student_inbox(
             models.DocumentInfo.sender_email == stdEmail
         )
     )
+    
+def get_student_all_reports(
+    db: Session,
+    stdEmail: str
+):
+    return db.query(models.DocumentInfo).filter(
+        models.DocumentInfo.sender_email == stdEmail
+    ).order_by(
+        models.DocumentInfo.app_no.asc()
+    ).all()
