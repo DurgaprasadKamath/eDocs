@@ -789,7 +789,7 @@ async def upload_document(
     _, ext = os.path.splitext(docFile.filename)
     
     app_name = f"{app_no}{ext}"
-    app_path = f"app/static/document_uploads/{app_name}"
+    app_path = f"app/static/document_uploads/pending/{app_name}"
     
     with open(app_path, "wb") as buffer:
         shutil.copyfileobj(docFile.file, buffer)
@@ -844,11 +844,14 @@ async def delete_app(
 async def approve_app(
     request: Request,
     appNo: str,
-    appPath: str = Form(...),
     db: Session = Depends(database.get_db)
 ):
     import fitz
-    appPath = 'app' + appPath
+    # appPath = 'app' + appPath
+    appDoc = db.query(models.DocumentInfo).filter(
+        models.DocumentInfo.app_no == appNo
+    ).first()
+    appPath = str(appDoc.app_path)
     doc = fitz.open(appPath)
     sealPath = 'app/static/images/approvedSeal.png'
     
@@ -858,8 +861,8 @@ async def approve_app(
         img_width = 120
         img_height = 120
         
-        x = rect.width - img_width - 20
-        y = 20
+        x = rect.width - img_width - 40
+        y = 40
         
         img_rect = fitz.Rect(x, y, x + img_width, y + img_height)
 
@@ -869,13 +872,17 @@ async def approve_app(
             overlay=True
         )
         
-    temp_path = appPath.replace(".pdf", "_temp.pdf")
-    doc.save(temp_path)
+    # temp_path = appPath.replace(".pdf", "_temp.pdf")
+    # newPath = f'app/static/document_uploads/approved/{appNo}'
+    newPath = appPath.replace("/pending", "/approved")
+    doc.save(newPath)
     doc.close()
 
-    os.replace(temp_path, appPath)
+    os.remove(appPath)
+    # os.replace(temp_path, appPath)
     
     appDoc = crud.get_pending_docs(db, appNo)
+    appPath = newPath
     if appDoc:
         appDoc.status = "Approved"
         appDoc.app_path = appPath

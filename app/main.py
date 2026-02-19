@@ -400,7 +400,7 @@ async def read_view_docs(
         "view_all.html",
         {
             "request": request,
-            "appPath": appPath.replace("app", ""),
+            "appPath": appPath.replace("app/", "/"),
             "appNo": appNo
         }
     )
