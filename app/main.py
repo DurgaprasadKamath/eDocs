@@ -81,7 +81,13 @@ docTypes = {
     "LEA_REQ": "Leave Request",
     "EVE_REQ": "Event Request",
     "INT_REQ": "Internship Request",
-    "WORK_REQ": "Workshop Request"
+    "WORK_REQ": "Workshop Request",
+    "EXA_TBL": "Exam Timetable",
+    "NOTI": "Notice",
+    "ACA_EVE": "Academic Event",
+    "ACA_DOC": "Academic Documents",
+    "MEET": "Meetings",
+    "OTHER": "Other"
 }
 
 async def refresh_office_home(db: Session):
@@ -147,10 +153,31 @@ async def refresh_page_student(db: Session):
                 "data": "database updated"
             }
             
+            
 @app.get("/refresh-student")
 async def sse_endpoint(db: Session = Depends(database.get_db)):
     return EventSourceResponse(refresh_page_student(db))
 
+async def refresh_inbox(db: Session):
+    prevInboxCount = db.query(models.InboxDocs).count()
+    
+    while True:
+        await asyncio.sleep(2)
+
+        curInboxCount = db.query(models.InboxDocs).count()
+        
+        if curInboxCount != prevInboxCount:
+            prevInboxCount = curInboxCount
+            
+            yield {
+                "event": "db_change",
+                "data": "database updated"
+            }
+            
+@app.get("/refresh-inbox")
+async def sse_endpoint(db: Session = Depends(database.get_db)):
+    return EventSourceResponse(refresh_inbox(db))
+    
 async def refresh_office_reports(db: Session):
     prev_rep_count = db.query(models.DocumentInfo).filter(
         models.DocumentInfo.rec_role == "office_staff"
@@ -391,6 +418,10 @@ async def read_view_docs(
     appDoc = db.query(models.DocumentInfo).filter(
         models.DocumentInfo.app_no == appNo
     ).first()
+    if not appDoc:
+        appDoc = db.query(models.InboxDocs).filter(
+            models.InboxDocs.doc_no == appNo
+        ).first()
     if not appDoc:
         return RedirectResponse(url="/", status_code=303)
         
@@ -694,6 +725,34 @@ async def read_upload_all(
         }
     )
 
+@app.get("/office/upload-history", response_class=HTMLResponse)
+async def read_upload_all(
+    request: Request,
+    db: Session = Depends(database.get_db)
+):
+    email = request.session.get('email')
+    role = request.session.get('role')
+    
+    if role != "office_staff":
+        return RedirectResponse("/", status_code=303)
+    if not email:
+        return RedirectResponse(url="/login", status_code=303)
+    
+    inboxDocs = crud.get_office_upload_history(db)
+
+    return templates.TemplateResponse(
+        "/office_staff/upload_history.html",
+        {
+            "request": request,
+            "page": "history",
+            "email": email,
+            "role": role,
+            "inboxDocs": inboxDocs,
+            "isEmpty": (len(inboxDocs) == 0),
+            "docType": docTypes
+        }
+    )
+
 @app.get("/office/reports", response_class=HTMLResponse)
 async def read_office_reports(
     request: Request,
@@ -828,7 +887,8 @@ async def read_std_home(
 
 @app.get("/student/inbox", response_class=HTMLResponse)
 async def read_std_home(
-    request: Request
+    request: Request,
+    db: Session = Depends(database.get_db)
 ):
     email = request.session.get('email')
     role = request.session.get('role')
@@ -837,13 +897,17 @@ async def read_std_home(
         return RedirectResponse(url="/", status_code=303)
     if not email:
         return RedirectResponse(url="/login", status_code=303)
+    
+    inboxDocs = crud.get_student_inbox(db, email)
 
     return templates.TemplateResponse(
         "student/inbox.html",
         {
             "request": request,
             "page": "inbox",
-            "role": role
+            "role": role,
+            "inboxDocs": inboxDocs,
+            "docTypes": docTypes
         }
     )
 

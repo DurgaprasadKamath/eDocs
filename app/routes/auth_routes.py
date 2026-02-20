@@ -772,6 +772,26 @@ def get_app_no(
         
     return app_no
 
+def get_inbox_doc_no(db: Session):
+    doc_list = db.query(models.InboxDocs).order_by(
+        models.InboxDocs.date.desc()
+    ).first()
+    
+    year = datetime.today().strftime('%Y')
+    
+    if not doc_list:
+        num = 1001
+        doc_no = f"EDOC-INBOX-{year}-0{num}"
+    else:
+        doc_no = doc_list.doc_no
+        doc_no = str(doc_no)
+        num = doc_no[17:]
+        num = int(num)
+        num += 1
+        doc_no = f"EDOC-INBOX-{year}-0{num}"
+    
+    return doc_no
+
 @router.post("/student/upload")
 async def upload_document(
     request: Request,
@@ -820,6 +840,24 @@ async def upload_document(
 
     return RedirectResponse(url="/", status_code=303)
 
+@router.post("/office/upload-history/delete/{docNo}")
+async def delete_inbox(
+    request: Request,
+    docNo: str,
+    db: Session = Depends(database.get_db)
+):
+    inboxDoc = db.query(models.InboxDocs).filter(
+        models.InboxDocs.doc_no == docNo
+    ).first()
+    docPath = inboxDoc.app_path
+    
+    if inboxDoc:
+        os.remove(docPath)
+        db.delete(inboxDoc)
+        db.commit()
+        
+    return RedirectResponse(url="/office/upload-history", status_code=303)
+
 @router.post("/office/reports/delete/{appNo}")
 async def delete_app(
     request: Request,
@@ -847,13 +885,13 @@ async def approve_app(
     db: Session = Depends(database.get_db)
 ):
     import fitz
-    # appPath = 'app' + appPath
     appDoc = db.query(models.DocumentInfo).filter(
         models.DocumentInfo.app_no == appNo
     ).first()
     appPath = str(appDoc.app_path)
     doc = fitz.open(appPath)
-    sealPath = 'app/static/images/approvedSeal.png'
+    sealPath = 'app/static/images/sealApproved.png'
+    # sealPath = 'app/static/images/approvedSeal.png'
     
     for page in doc:
         rect = page.rect
@@ -925,42 +963,67 @@ async def view_doc(
 @router.post("/office/upload/student")
 async def upload_student_doc(
     request: Request,
-    email: str = Form(...),
     docTitle: str = Form(...),
     docCategory: str = Form(...),
     docDesc: str = Form(...),
     docFile: UploadFile = File(...),
     db: Session = Depends(database.get_db)
 ):
-    user = crud.get_user_by_email(db, email)
-    
-    app_no = get_app_no(db)
+    doc_no = get_inbox_doc_no(db)
 
     _, ext = os.path.splitext(docFile.filename)
+    
+    doc_name = f"{doc_no}{ext}"
+    doc_path = f"app/static/document_uploads/inbox/{doc_name}"
 
-    app_name = f"{app_no}{ext}"
-    app_path = f"app/static/document_uploads/{app_name}"
-
-    with open(app_path, "wb") as buffer:
+    with open(doc_path, "wb") as buffer:
         shutil.copyfileobj(docFile.file, buffer)
 
-    appData = schemas.Documents(
-        app_no = app_no,
-        app_path = app_path,
-        app_type = docCategory,
-        app_title = docTitle,
-        description = docDesc,
-        sender_email = email,
-        sender_name = user.name,
-        sender_id_no = user.id,
-        sender_department = user.department,
-        sender_role = user.role,
-        rec_role = "student",
-        status = "",
-        rejectTxt = "",
+    appData = schemas.InboxDocs(
+        doc_no=doc_no,
+        app_path=doc_path,
+        app_type=docCategory,
+        app_title=docTitle,
+        description=docDesc,
+        rec_role="student",
+        rec_department="all",
         date = datetime.now()
     )
     
-    crud.add_document(db, appData)
+    crud.add_inbox_docs(db, appData)
+
+    return RedirectResponse(url="/office/upload/student", status_code=303)
+
+@router.post("/office/upload/teaching-staff")
+async def upload_student_doc(
+    request: Request,
+    docTitle: str = Form(...),
+    docCategory: str = Form(...),
+    docDesc: str = Form(...),
+    docFile: UploadFile = File(...),
+    db: Session = Depends(database.get_db)
+):
+    doc_no = get_inbox_doc_no(db)
+
+    _, ext = os.path.splitext(docFile.filename)
+    
+    doc_name = f"{doc_no}{ext}"
+    doc_path = f"app/static/document_uploads/inbox/{doc_name}"
+
+    with open(doc_path, "wb") as buffer:
+        shutil.copyfileobj(docFile.file, buffer)
+
+    appData = schemas.InboxDocs(
+        doc_no=doc_no,
+        app_path=doc_path,
+        app_type=docCategory,
+        app_title=docTitle,
+        description=docDesc,
+        rec_role="student",
+        rec_department="all",
+        date = datetime.now()
+    )
+    
+    crud.add_inbox_docs(db, appData)
 
     return RedirectResponse(url="/office/upload/student", status_code=303)

@@ -230,6 +230,20 @@ def get_office_reports(db: Session):
         models.DocumentInfo.app_no.asc()
     ).all()
     
+def get_office_upload_history(db: Session):
+    return db.query(
+        models.InboxDocs
+    ).order_by(
+        models.InboxDocs.doc_no.asc()
+    ).all()
+    
+def add_inbox_docs(db: Session, inboxData: schemas.InboxDocs):
+    db_inboxData = models.InboxDocs(**inboxData.dict())
+    db.add(db_inboxData)
+    db.commit()
+    db.refresh(db_inboxData)
+    return db_inboxData
+
 def office_filter_reports(db: Session, searchInput: str):
     return db.query(
         models.DocumentInfo
@@ -273,20 +287,22 @@ def get_student_pending_docs(
     
 def get_student_inbox(
     db: Session,
-    stdEmail: str,
-    stdDept: str
+    userEmail: str
 ):
-    return db.query(models.DocumentInfo).filter(
-        and_(
-            or_(
-                models.DocumentInfo.rec_role == "all",
-                models.DocumentInfo.rec_role == "student",
-                models.DocumentInfo.rec_role == stdDept
-            ),
-            models.DocumentInfo.sender_email == stdEmail
-        )
-    )
+    user = get_user_by_email(db, userEmail)
+    userDept = user.department
     
+    return db.query(models.InboxDocs).filter(
+        or_(
+            models.InboxDocs.rec_role == "student",
+            models.InboxDocs.rec_role == "all",
+            models.InboxDocs.rec_department == "all",
+            models.InboxDocs.rec_department == userDept
+        )
+    ).order_by(
+        models.InboxDocs.date.desc()
+    ).all()
+
 def get_student_all_reports(
     db: Session,
     stdEmail: str

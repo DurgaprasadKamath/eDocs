@@ -39,3 +39,16 @@ class DocumentInfo(Base):
     status = Column(String, nullable=False)
     rejectTxt = Column(String)
     date = Column(DateTime, nullable=False)
+    
+class InboxDocs(Base):
+    __tablename__ = 'inbox'
+
+    doc_no = Column(String, primary_key=True, nullable=False)
+    app_path = Column(String, nullable=False)
+    app_type = Column(String, nullable=False)
+    app_title = Column(String, nullable=False)
+    description = Column(String, nullable=False)
+    rec_role = Column(String, nullable=False)
+    rec_department = Column(String, nullable=False)
+    date = Column(DateTime, nullable=False)
+    

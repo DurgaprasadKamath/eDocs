@@ -1320,6 +1320,32 @@ nav.navbar-main {
 .report-office-main {
   display: flex;
   flex-direction: column;
+  .title-bar.inbox {
+    top: 11vh;
+    p#name {
+      width: 24.5%;
+    }
+  }
+  .report-list.inbox {
+    top: 19vh;
+    p#name {
+      width: 25%;
+    }
+    .report-block {
+      padding: 0.7%;
+    }
+    .actions.inbox button,
+    .actions.inbox a {
+      display: flex;
+      text-decoration: none;
+    }
+  }
+  .report-list.inbox:hover {
+    .actions.inbox button,
+    a {
+      display: flex;
+    }
+  }
   .title-bar {
     position: fixed;
     top: 8vh;
@@ -1419,6 +1445,9 @@ nav.navbar-main {
         font-weight: 900;
         color: var(--primary-color);
       }
+    }
+    a {
+      text-decoration: none;
     }
     .report-block:hover {
       .actions button,
@@ -1592,7 +1621,7 @@ nav.navbar-main {
       display: flex;
       flex-direction: column;
       justify-content: center;
-      gap: 2vh;
+      gap: 1.5vh;
       padding: 5% 8%;
       button[type="submit"] {
         width: 40%;
@@ -2249,7 +2278,8 @@ nav.navbar-main {
 
 .pending-main-container,
 .std-dash-main-container,
-.std-reports-main-container {
+.std-reports-main-container,
+.inbox-main-container {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
   gap: 2vw;
@@ -2260,7 +2290,8 @@ nav.navbar-main {
   background-color: var(--body-background);
   .dashboard-block,
   .pending-block,
-  .reports-block {
+  .reports-block,
+  .inbox-block {
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;

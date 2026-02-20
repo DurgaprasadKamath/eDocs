@@ -27,3 +27,13 @@ class Documents(BaseModel):
     status: str
     rejectTxt: str
     date: datetime
+    
+class InboxDocs(BaseModel):
+    doc_no: str
+    app_path: str
+    app_type: str
+    app_title: str
+    description: str
+    rec_role: str
+    rec_department: str
+    date: datetime

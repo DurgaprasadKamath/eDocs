@@ -1,6 +1,44 @@
 {% extends "navbar.html" %} {% block title %} eDocs - Dashboard {% endblock
 title %} {% block content %}
 
+<div class="inbox-main-container">
+  {% for doc in inboxDocs %}
+  <div class="inbox-block">
+    <div class="value-block">
+      <p id="label">Inbox No.:</p>
+      <p id="value-appno">{{doc.doc_no}}</p>
+    </div>
+    <div class="value-block">
+      <p id="label">Title:</p>
+      <p id="value">{{doc.app_title}}</p>
+    </div>
+    <div class="value-block">
+      <p id="label">Type:</p>
+      <p id="value">{{docTypes[doc.app_type]}}</p>
+    </div>
+    <div class="value-block">
+      <p id="label">Description:</p>
+      <p id="value">{{doc.description}}</p>
+    </div>
+    <div class="value-block">
+      <p id="label">Uploaded On:</p>
+      <p id="value">{{doc.date.strftime('%B %d, %Y')}}</p>
+    </div>
+    <a href="/view/{{doc.doc_no}}" target="_blank">View</a>
+  </div>
+  {% endfor %}
+</div>
 
+<script>
+  const eventSource = new EventSource("/refresh-inbox");
+
+  eventSource.addEventListener("db_change", function (event) {
+    location.reload();
+  });
+
+  eventSource.onerror = function () {
+    console.log("SSE connection lost");
+  };
+</script>
 
 {% endblock content %}

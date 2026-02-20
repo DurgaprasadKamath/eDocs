@@ -1,0 +1,52 @@
+{% extends "navbar.html" %} {% block title %} eDocs - Dashboard {% endblock
+title %} {% block content %}
+
+<div class="report-office-main">
+  <div class="title-bar inbox">
+    <div class="block2">
+      <p id="index"></p>
+      <p id="appNo">Application No</p>
+      <p id="appType">Application Type</p>
+      <p id="name">Name</p>
+      <p id="date">Date</p>
+      <p id="actions">Actions</p>
+    </div>
+  </div>
+  <div class="report-list inbox">
+    {% if isEmpty %}
+    <p id="empty">No applications found!</p>
+    {% endif %} {% for doc in inboxDocs %}
+    <div class="report-block">
+      <p id="index">{{loop.index}}</p>
+      <p id="appNo">{{doc.doc_no}}</p>
+      <p id="appType">{{docType[doc.app_type]}}</p>
+      <p id="name">{{doc.app_title}}</p>
+      <p id="date">{{doc.date.strftime('%d / %m / %Y')}}</p>
+      <div class="actions inbox">
+        <a href="/view/{{doc.doc_no}}" target="_blank">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i>
+        </a>
+        <form action="/office/upload-history/delete/{{doc.doc_no}}" method="post">
+          <button type="submit">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+  const eventSource = new EventSource("/refresh-inbox");
+
+  eventSource.addEventListener("db_change", function (event) {
+    location.reload();
+  });
+
+  eventSource.onerror = function () {
+    console.log("SSE connection lost");
+  };
+</script>
+
+{% endblock content %}
