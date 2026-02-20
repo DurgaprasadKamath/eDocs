@@ -26,7 +26,10 @@ title %} {% block content %}
         <a href="/view/{{doc.doc_no}}" target="_blank">
           <i class="fa-solid fa-arrow-up-right-from-square"></i>
         </a>
-        <form action="/office/upload-history/delete/{{doc.doc_no}}" method="post">
+        <form
+          action="/office/upload-history/delete/{{doc.doc_no}}"
+          method="post"
+        >
           <button type="submit">
             <i class="fa-solid fa-trash"></i>
           </button>
