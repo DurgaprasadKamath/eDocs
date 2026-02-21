@@ -570,7 +570,8 @@ nav.navbar-main {
   }
 }
 
-.office-home-container {
+.office-home-container,
+.hod-home-container {
   width: 100%;
   height: 100%;
   display: grid;
@@ -2310,6 +2311,7 @@ nav.navbar-main {
         color: var(--text-grey-color);
         font-size: 0.85rem;
         font-weight: 550;
+        min-width: 30%;
       }
       p#value,
       p#value-status-pending,
@@ -2317,6 +2319,7 @@ nav.navbar-main {
       p#value-appno {
         font-size: 0.9rem;
         font-weight: 550;
+        text-align: justify;
       }
       p#value-appno {
         color: var(--primary-color);

@@ -910,14 +910,11 @@ async def approve_app(
             overlay=True
         )
         
-    # temp_path = appPath.replace(".pdf", "_temp.pdf")
-    # newPath = f'app/static/document_uploads/approved/{appNo}'
     newPath = appPath.replace("/pending", "/approved")
     doc.save(newPath)
     doc.close()
 
     os.remove(appPath)
-    # os.replace(temp_path, appPath)
     
     appDoc = crud.get_pending_docs(db, appNo)
     appPath = newPath
@@ -937,13 +934,17 @@ async def reject_app(
     db: Session = Depends(database.get_db)
 ):
     appDoc = crud.get_pending_docs(db, appNo)
+    role = request.session.get('role')
     if appDoc:
         appDoc.rejectTxt = rejectReason
         appDoc.status = "Rejected"
         db.commit()
         db.refresh(appDoc)
         return RedirectResponse(url="/", status_code=303)
-    return RedirectResponse(url="/office/view/{appNo}", status_code=303)
+    
+    if role == 'office_staff':
+        return RedirectResponse(url="/office/view/{appNo}", status_code=303)
+    return RedirectResponse(url="/hod/view/{appNo}", status_code=303)
 
 @router.post("/office/preview/{appNo}")
 async def view_doc(
@@ -999,6 +1000,7 @@ async def upload_student_doc(
     request: Request,
     docTitle: str = Form(...),
     docCategory: str = Form(...),
+    staffCategory: str = Form(...),
     docDesc: str = Form(...),
     docFile: UploadFile = File(...),
     db: Session = Depends(database.get_db)
@@ -1019,11 +1021,27 @@ async def upload_student_doc(
         app_type=docCategory,
         app_title=docTitle,
         description=docDesc,
-        rec_role="student",
+        rec_role=staffCategory,
         rec_department="all",
         date = datetime.now()
     )
     
     crud.add_inbox_docs(db, appData)
 
-    return RedirectResponse(url="/office/upload/student", status_code=303)
+    return RedirectResponse(url="/office/upload/teaching-staff", status_code=303)
+
+# hod doc preview
+@router.post("/hod/preview/{appNo}")
+async def view_doc(
+    request: Request,
+    appNo: str,
+    db: Session = Depends(database.get_db)
+):
+    appDoc = crud.get_pending_docs(db, appNo)
+    if appDoc:
+        appDoc.status = "Under Process"
+        db.commit()
+        db.refresh(appDoc)
+        
+        return RedirectResponse(url=f"/hod/preview/{appNo}", status_code=303)
+    return RedirectResponse(url="/", status_code=303)

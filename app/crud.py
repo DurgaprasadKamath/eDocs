@@ -293,11 +293,21 @@ def get_student_inbox(
     userDept = user.department
     
     return db.query(models.InboxDocs).filter(
-        or_(
-            models.InboxDocs.rec_role == "student",
-            models.InboxDocs.rec_role == "all",
-            models.InboxDocs.rec_department == "all",
-            models.InboxDocs.rec_department == userDept
+        # or_(
+        #     models.InboxDocs.rec_role == "student",
+        #     models.InboxDocs.rec_role == "all",
+        #     models.InboxDocs.rec_department == "all",
+        #     models.InboxDocs.rec_department == userDept
+        # )
+        and_(
+            or_(
+                models.InboxDocs.rec_role == "student",
+                models.InboxDocs.rec_role == "all"
+            ),
+            or_(
+                models.InboxDocs.rec_department == "all",
+                models.InboxDocs.rec_department == userDept
+            )
         )
     ).order_by(
         models.InboxDocs.date.desc()
@@ -311,4 +321,14 @@ def get_student_all_reports(
         models.DocumentInfo.sender_email == stdEmail
     ).order_by(
         models.DocumentInfo.app_no.asc()
+    ).all()
+    
+def pending_docs_hod(db: Session):
+    return db.query(models.DocumentInfo).filter(
+        and_(
+            models.DocumentInfo.rec_role == 'hod',
+            models.DocumentInfo.status == 'Pending'
+        )
+    ).order_by(
+        models.DocumentInfo.date.asc()
     ).all()

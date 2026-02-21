@@ -1,0 +1,76 @@
+{% extends "navbar.html" %} {% block title %} eDocs - Dashboard {% endblock
+title %}{% block content %}
+
+<div class="hod-home-container">
+  {% for data in pendingDocs %}
+  <div class="pendingContainer">
+    <div class="block1">
+      <p id="appNo">
+        <i class="fa-regular fa-file-lines"></i>
+        {{data.app_no}}
+      </p>
+      <p id="role">
+        <i class="fa-solid fa-graduation-cap"></i>
+        {{data.sender_role}}
+      </p>
+    </div>
+    <hr />
+    <div class="block2">
+      <div class="content1">
+        <div class="valueList">
+          <p id="label">Name</p>
+          <p id="value">{{data.sender_name}}</p>
+        </div>
+        <div class="valueList">
+          <p id="label">Email</p>
+          <p id="value">{{data.sender_email}}</p>
+        </div>
+        <div class="valueList end">
+          <p id="label">Submitted On</p>
+          <p id="value">{{data.date.strftime('%B %d, %Y - %I:%M %p')}}</p>
+        </div>
+      </div>
+      <div class="content2">
+        <div class="valueList">
+          <p id="label">Sender ID</p>
+          <p id="value">{{data.sender_id_no}}</p>
+        </div>
+        <div class="valueList">
+          <p id="label">Document Type</p>
+          <p id="value">{{docTypes[data.app_type]}}</p>
+        </div>
+        <div class="valueList end">
+          <p id="label">Department</p>
+          <p id="value">{{departments[data.sender_department]}}</p>
+        </div>
+      </div>
+    </div>
+    <hr />
+    <div class="block3">
+      <p id="status">
+        <i class="fa-regular fa-clock"></i>
+        Pending
+      </p>
+      <form action="/hod/preview/{{data.app_no}}" method="post">
+        <button type="submit">
+          <i class="fa-solid fa-magnifying-glass"></i> Preview
+        </button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<script>
+  const eventSource = new EventSource("/hod_home_refresh");
+
+  eventSource.addEventListener("db_change", function (event) {
+    location.reload();
+  });
+
+  eventSource.onerror = function () {
+    console.log("SSE connection lost");
+  };
+</script>
+
+{% endblock content %}

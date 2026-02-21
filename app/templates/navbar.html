@@ -32,7 +32,7 @@
   <body>
     <nav class="navbar-main">
       <div class="logo-text">
-        <a href="/"> eDocs </a>
+        <a href="/">eDocs</a>
       </div>
       <div class="navbar-items">
         {% if role == 'office_staff' %}
@@ -89,6 +89,37 @@
         >
         <a
           href="/student/reports"
+          class="navbar-link {% if page == 'reports' %} active {% endif %}"
+          >Reports</a
+        >
+        {% elif role == 'hod' %}
+        <a
+          href="/hod/dashboard"
+          class="navbar-link {% if page == 'home' %} active {% endif %}"
+          >Dashboard</a
+        >
+        <a
+          href="/hod/approved"
+          class="navbar-link {% if page == 'approved' %} active {% endif %}"
+          >Approved</a
+        >
+        <a
+          href="/hod/upload"
+          class="navbar-link {% if page == 'upload' %} active {% endif %}"
+          >Upload</a
+        >
+        <a
+          href="/hod/history"
+          class="navbar-link {% if page == 'history' %} active {% endif %}"
+          >History</a
+        >
+        <a
+          href="/hod/inbox"
+          class="navbar-link {% if page == 'inbox' %} active {% endif %}"
+          >Inbox</a
+        >
+        <a
+          href="/hod/reports"
           class="navbar-link {% if page == 'reports' %} active {% endif %}"
           >Reports</a
         >

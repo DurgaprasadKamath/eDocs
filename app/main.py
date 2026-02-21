@@ -92,14 +92,20 @@ docTypes = {
 
 async def refresh_office_home(db: Session):
     prev_count = db.query(models.DocumentInfo).filter(
-        models.DocumentInfo.status == "Pending"
+        and_(
+            models.DocumentInfo.status == "Pending",
+            models.DocumentInfo.rec_role == "office_staff"
+        )
     ).count()
     
     while True:
         await asyncio.sleep(2)
 
         cur_count = db.query(models.DocumentInfo).filter(
-            models.DocumentInfo.status == "Pending"
+            and_(
+                models.DocumentInfo.status == "Pending",
+                models.DocumentInfo.rec_role == "office_staff"
+             )
         ).count()
         
         if cur_count != prev_count:
@@ -113,6 +119,36 @@ async def refresh_office_home(db: Session):
 @app.get("/office_home_refresh")
 async def sse_endpoint(db: Session = Depends(database.get_db)):
     return EventSourceResponse(refresh_office_home(db))
+
+async def refresh_hod_home(db: Session):
+    prev_count = db.query(models.DocumentInfo).filter(
+        and_(
+            models.DocumentInfo.status == "Pending",
+            models.DocumentInfo.rec_role == "hod"
+        )
+    ).count()
+    
+    while True:
+        await asyncio.sleep(2)
+
+        cur_count = db.query(models.DocumentInfo).filter(
+            and_(
+                models.DocumentInfo.status == "Pending",
+                models.DocumentInfo.rec_role == "hod"
+            )
+        ).count()
+        
+        if cur_count != prev_count:
+            prev_count = cur_count
+            
+            yield {
+                "event": "db_change",
+                "data": "database updated"
+            }
+
+@app.get("/hod_home_refresh")
+async def sse_endpoint(db: Session = Depends(database.get_db)):
+    return EventSourceResponse(refresh_hod_home(db))
 
 async def refresh_page_student(db: Session):
     prevApprovedCount, prevRejectCount, prevUnderProcessCount, prevPendingCount = (
@@ -936,3 +972,65 @@ async def read_std_home(
             "docType": docTypes
         }
     )
+#hod backend    
+
+@app.get("/hod/dashboard", response_class=HTMLResponse)
+async def red_hod_home(
+    request: Request,
+    db: Session = Depends(database.get_db)
+):
+    email = request.session.get('email')
+    role = request.session.get('role')
+
+    if role != "hod":
+        return RedirectResponse(url="/", status_code=303)
+    if not email:
+        return RedirectResponse(url="/login", status_code=303)
+
+    pendingDocs = crud.pending_docs_hod(db)
+
+    return templates.TemplateResponse(
+        "hod/index.html",
+        {
+            "request": request,
+            "page": "home",
+            "role": role,
+            "pendingDocs": pendingDocs,
+            "departments": departments,
+            "docTypes": docTypes
+        }
+    )
+    
+        
+@app.get("/hod/preview/{appNo}")
+async def view_document(
+    request: Request,
+    appNo: str,
+    db: Session = Depends(database.get_db)
+):
+    appDoc = db.query(
+        models.DocumentInfo
+    ).filter(
+        models.DocumentInfo.app_no == appNo
+    ).first()
+    appPath = str(appDoc.app_path)
+    
+    if appDoc.status != "Under Process":
+        return RedirectResponse(url="/", status_code=303)
+    
+    return templates.TemplateResponse(
+        "/hod/view_doc.html",
+        {
+            "request": request,
+            "appNo": appNo,
+            "appType": docTypes[appDoc.app_type],
+            "appDesc": appDoc.description,
+            "senderEmail": appDoc.sender_email,
+            "senderName": appDoc.sender_name,
+            "senderIdNo": appDoc.sender_id_no,
+            "sentDate": appDoc.date,
+            "appTitle": appDoc.app_title,
+            "appPath": appPath.replace("app", ""),
+        }
+    )
+ 
