@@ -323,11 +323,13 @@ def get_student_all_reports(
         models.DocumentInfo.app_no.asc()
     ).all()
     
-def pending_docs_hod(db: Session):
+def pending_docs_hod(db: Session, email: str):
+    hod = get_user_by_email(db, email)
     return db.query(models.DocumentInfo).filter(
         and_(
             models.DocumentInfo.rec_role == 'hod',
-            models.DocumentInfo.status == 'Pending'
+            models.DocumentInfo.status == 'Pending',
+            models.DocumentInfo.sender_department == hod.department
         )
     ).order_by(
         models.DocumentInfo.date.asc()

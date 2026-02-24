@@ -972,8 +972,8 @@ async def read_std_home(
             "docType": docTypes
         }
     )
+    
 #hod backend    
-
 @app.get("/hod/dashboard", response_class=HTMLResponse)
 async def red_hod_home(
     request: Request,
@@ -987,7 +987,7 @@ async def red_hod_home(
     if not email:
         return RedirectResponse(url="/login", status_code=303)
 
-    pendingDocs = crud.pending_docs_hod(db)
+    pendingDocs = crud.pending_docs_hod(db, email)
 
     return templates.TemplateResponse(
         "hod/index.html",
