@@ -1,4 +1,56 @@
-{% extends "navbar.html" %} {% block title %} eDocs - Department {% endblock title
-%} {% block content %}
+{% extends "navbar.html" %} {% block title %} eDocs - Department {% endblock
+title %} {% block content %}
+
+<div class="upload-office-main">
+  <div class="upload-block">
+    <form
+      action="/office/upload/department"
+      method="post"
+      enctype="multipart/form-data"
+    >
+      <div class="input-block">
+        <p id="label">Department</p>
+        <select name="department" id="department" required>
+          {% for dept in departments %}
+          <option value="{{dept}}">{{departments[dept]}}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="input-block">
+        <p id="label">Document Title</p>
+        <input
+          type="text"
+          id="docTitle"
+          name="docTitle"
+          placeholder="Title Here"
+          required
+        />
+      </div>
+      <div class="input-block">
+        <p id="label">Document Category</p>
+        <select name="docCategory" id="docCategory" required>
+          <option value="EXA_TBL">Exam Timetable</option>
+          <option value="NOTI">Notice</option>
+          <option value="ACA_EVE">Academic Events</option>
+          <option value="OTHER">Other</option>
+        </select>
+      </div>
+      <div class="input-block">
+        <p id="label">Document Description</p>
+        <textarea
+          name="docDesc"
+          rows="3"
+          placeholder="Description Here"
+          required
+        ></textarea>
+      </div>
+      <div class="input-block">
+        <p id="label">Attach Document</p>
+        <input type="file" name="docFile" required />
+      </div>
+      <button type="submit">Upload</button>
+    </form>
+  </div>
+</div>
 
 {% endblock content %}

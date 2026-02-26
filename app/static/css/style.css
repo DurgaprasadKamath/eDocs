@@ -1466,11 +1466,16 @@ nav.navbar-main {
     color: var(--text-grey-color);
   }
   p#appNo {
-    width: 18%;
+    width: 13%;
   }
-  p#appType,
+  p#role{
+    width: 9%;
+  }
+  p#appType{
+    width: 15%;
+  }
   p#name {
-    width: 16%;
+    width: 12%;
   }
   p#id,
   p#date,
@@ -2280,7 +2285,8 @@ nav.navbar-main {
 .pending-main-container,
 .std-dash-main-container,
 .std-reports-main-container,
-.inbox-main-container {
+.inbox-main-container,
+.hod-approved-main-container {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
   gap: 2vw;

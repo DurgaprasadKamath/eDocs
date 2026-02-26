@@ -259,13 +259,13 @@ def office_filter_reports(db: Session, searchInput: str):
         models.DocumentInfo.app_no.asc()
     ).all()
     
-def  get_student_approved_docs(
+def get_user_approved_docs(
     db: Session,
-    stdEmail: str,
+    userEmail: str
 ):
     return db.query(models.DocumentInfo).filter(
         and_(
-            models.DocumentInfo.sender_email == stdEmail,
+            models.DocumentInfo.sender_email == userEmail,
             models.DocumentInfo.status == "Approved"
         )
     ).order_by(
@@ -333,4 +333,15 @@ def pending_docs_hod(db: Session, email: str):
         )
     ).order_by(
         models.DocumentInfo.date.asc()
+    ).all()
+    
+def get_history_hod(db: Session, email: str):
+    user = get_user_by_email(db, email)
+    return db.query(models.DocumentInfo).filter(
+        and_(
+            models.DocumentInfo.rec_role == "hod",
+            models.DocumentInfo.sender_department == user.department
+        )
+    ).order_by(
+        models.DocumentInfo.app_no.asc()
     ).all()

@@ -25,6 +25,7 @@
       <p id="name">Name</p>
       <p id="id">ID</p>
       <p id="date">Date</p>
+      <p id="role">Sender Role</p>
       <p id="status">Status</p>
       <p id="actions"></p>
     </div>
@@ -41,6 +42,7 @@
       <p id="name">{{report.sender_name}}</p>
       <p id="id">{{report.sender_id_no}}</p>
       <p id="date">{{report.date.strftime('%d / %m / %Y')}}</p>
+      <p id="role">{{roles[report.sender_role]}}</p>
       <div class="status">
         <p
           class="{% if report.status == 'Pending' %} pending {% elif report.status == 'Under Process' %} underProcess {% elif report.status == 'Rejected' %} rejected {% elif report.status == 'Approved' %} approved {% endif %}"

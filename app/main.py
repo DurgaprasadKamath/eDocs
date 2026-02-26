@@ -87,6 +87,8 @@ docTypes = {
     "ACA_EVE": "Academic Event",
     "ACA_DOC": "Academic Documents",
     "MEET": "Meetings",
+    "MARK_SUB": "Marks Submission",
+    "SYL_COM": "Syllabus Progress Report",
     "OTHER": "Other"
 }
 
@@ -150,7 +152,7 @@ async def refresh_hod_home(db: Session):
 async def sse_endpoint(db: Session = Depends(database.get_db)):
     return EventSourceResponse(refresh_hod_home(db))
 
-async def refresh_page_student(db: Session):
+async def refresh_page_approved(db: Session):
     prevApprovedCount, prevRejectCount, prevUnderProcessCount, prevPendingCount = (
         db.query(models.DocumentInfo).filter(
             models.DocumentInfo.status == "Approved"
@@ -189,10 +191,9 @@ async def refresh_page_student(db: Session):
                 "data": "database updated"
             }
             
-            
-@app.get("/refresh-student")
+@app.get("/refresh-approved")
 async def sse_endpoint(db: Session = Depends(database.get_db)):
-    return EventSourceResponse(refresh_page_student(db))
+    return EventSourceResponse(refresh_page_approved(db))
 
 async def refresh_inbox(db: Session):
     prevInboxCount = db.query(models.InboxDocs).count()
@@ -735,7 +736,8 @@ async def read_upload_department(
             "request": request,
             "page": "upload",
             "email": email,
-            "role": role
+            "role": role,
+            "departments": departments
         }
     )
 
@@ -809,7 +811,8 @@ async def read_office_reports(
             "page": "reports",
             "role": role,
             "allReports": crud.get_office_reports(db),
-            "docType": docTypes
+            "docType": docTypes,
+            "roles": roles
         }
     )
     
@@ -826,7 +829,7 @@ async def view_document(
     ).first()
     appPath = str(appDoc.app_path)
     
-    if appDoc.status != "Under Process":
+    if appDoc.status == "Approved" or appDoc.status == "Rejected":
         return RedirectResponse(url="/", status_code=303)
     
     return templates.TemplateResponse(
@@ -859,7 +862,7 @@ async def read_std_home(
     if not email:
         return RedirectResponse(url="/login", status_code=303)
     
-    stdApprovedDocs = crud.get_student_approved_docs(db, email)
+    approvedDocs = crud.get_user_approved_docs(db, email)
 
     return templates.TemplateResponse(
         "student/index.html",
@@ -867,7 +870,7 @@ async def read_std_home(
             "request": request,
             "page": "dashboard",
             "role": role,
-            "stdApprovedDocs": stdApprovedDocs,
+            "approvedDocs": approvedDocs,
             "docType": docTypes
         }
     )
@@ -975,7 +978,7 @@ async def read_std_home(
     
 #hod backend    
 @app.get("/hod/dashboard", response_class=HTMLResponse)
-async def red_hod_home(
+async def read_hod_home(
     request: Request,
     db: Session = Depends(database.get_db)
 ):
@@ -1001,7 +1004,83 @@ async def red_hod_home(
         }
     )
     
-        
+@app.get("/hod/approved", response_class=HTMLResponse)
+async def read_hod_approved(
+    request: Request,
+    db: Session = Depends(database.get_db)
+):
+    email = request.session.get('email')
+    role = request.session.get('role')
+
+    if role != "hod":
+        return RedirectResponse(url="/", status_code=303)
+    if not email:
+        return RedirectResponse(url="/login", status_code=303)
+
+    approvedDocs = crud.get_user_approved_docs(db, email)
+
+    return templates.TemplateResponse(
+        "hod/approved.html",
+        {
+            "request": request,
+            "page": "approved",
+            "role": role,
+            "approvedDocs": approvedDocs,
+            "departments": departments,
+            "docTypes": docTypes
+        }
+    )
+    
+@app.get("/hod/upload", response_class=HTMLResponse)
+async def read_hod_upload(
+    request: Request,
+    db: Session = Depends(database.get_db)
+):
+    email = request.session.get('email')
+    role = request.session.get('role')
+
+    if role != "hod":
+        return RedirectResponse(url="/", status_code=303)
+    if not email:
+        return RedirectResponse(url="/login", status_code=303)
+
+    return templates.TemplateResponse(
+        "hod/upload.html",
+        {
+            "request": request,
+            "page": "upload",
+            "email": email,
+            "role": role,
+        }
+    )
+    
+@app.get("/hod/history", response_class=HTMLResponse)
+async def read_hod_history(
+    request: Request,
+    db: Session = Depends(database.get_db)
+):
+    email = request.session.get('email')
+    role = request.session.get('role')
+
+    if role != "hod":
+        return RedirectResponse(url="/", status_code=303)
+    if not email:
+        return RedirectResponse(url="/login", status_code=303)
+
+    historyDocs = crud.get_history_hod(db, email)
+
+    return templates.TemplateResponse(
+        "hod/history.html",
+        {
+            "request": request,
+            "page": "history",
+            "role": role,
+            "historyDocs": historyDocs,
+            "docTypes": docTypes,
+            "departments": departments
+        }
+    )
+    
 @app.get("/hod/preview/{appNo}")
 async def view_document(
     request: Request,
@@ -1015,7 +1094,7 @@ async def view_document(
     ).first()
     appPath = str(appDoc.app_path)
     
-    if appDoc.status != "Under Process":
+    if appDoc.status == "Approved" or appDoc.status == "Rejected":
         return RedirectResponse(url="/", status_code=303)
     
     return templates.TemplateResponse(

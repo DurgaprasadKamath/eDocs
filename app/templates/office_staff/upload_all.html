@@ -2,9 +2,47 @@
 %} {% block content %}
 
 <div class="upload-office-main">
-    <div class="upload-block">
-        <form action="/upload/office/all" method="post"></form>
-    </div>
+  <div class="upload-block">
+    <form
+      action="/office/upload/all"
+      method="post"
+      enctype="multipart/form-data"
+    >
+      <div class="input-block">
+        <p id="label">Document Title</p>
+        <input
+          type="text"
+          id="docTitle"
+          name="docTitle"
+          placeholder="Title Here"
+          required
+        />
+      </div>
+      <div class="input-block">
+        <p id="label">Document Category</p>
+        <select name="docCategory" id="docCategory" required>
+          <option value="EXA_TBL">Exam Timetable</option>
+          <option value="NOTI">Notice</option>
+          <option value="ACA_EVE">Academic Events</option>
+          <option value="OTHER">Other</option>
+        </select>
+      </div>
+      <div class="input-block">
+        <p id="label">Document Description</p>
+        <textarea
+          name="docDesc"
+          rows="3"
+          placeholder="Description Here"
+          required
+        ></textarea>
+      </div>
+      <div class="input-block">
+        <p id="label">Attach Document</p>
+        <input type="file" name="docFile" required />
+      </div>
+      <button type="submit">Upload</button>
+    </form>
+  </div>
 </div>
 
 {% endblock content %}
