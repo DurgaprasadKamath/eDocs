@@ -1081,6 +1081,33 @@ async def read_hod_history(
         }
     )
     
+@app.get("/hod/inbox", response_class=HTMLResponse)
+async def read_hod_inbox(
+    request: Request,
+    db: Session = Depends(database.get_db)
+):
+    email = request.session.get('email')
+    role = request.session.get('role')
+
+    if role != "hod":
+        return RedirectResponse(url="/", status_code=303)
+    if not email:
+        return RedirectResponse(url="/login", status_code=303)
+
+    inboxDocs = crud.get_hod_inbox(db, email)
+
+    return templates.TemplateResponse(
+        "hod/inbox.html",
+        {
+            "request": request,
+            "page": "inbox",
+            "role": role,
+            "inboxDocs": inboxDocs,
+            "docTypes": docTypes,
+            "departments": departments
+        }
+    )
+    
 @app.get("/hod/preview/{appNo}")
 async def view_document(
     request: Request,

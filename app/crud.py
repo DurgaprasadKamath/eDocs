@@ -293,12 +293,6 @@ def get_student_inbox(
     userDept = user.department
     
     return db.query(models.InboxDocs).filter(
-        # or_(
-        #     models.InboxDocs.rec_role == "student",
-        #     models.InboxDocs.rec_role == "all",
-        #     models.InboxDocs.rec_department == "all",
-        #     models.InboxDocs.rec_department == userDept
-        # )
         and_(
             or_(
                 models.InboxDocs.rec_role == "student",
@@ -344,4 +338,26 @@ def get_history_hod(db: Session, email: str):
         )
     ).order_by(
         models.DocumentInfo.app_no.asc()
+    ).all()
+    
+def get_hod_inbox(
+    db: Session,
+    userEmail: str
+):
+    user = get_user_by_email(db, userEmail)
+    userDept = user.department
+    
+    return db.query(models.InboxDocs).filter(
+        and_(
+            or_(
+                models.InboxDocs.rec_role == "hod",
+                models.InboxDocs.rec_role == "all"
+            ),
+            or_(
+                models.InboxDocs.rec_department == "all",
+                models.InboxDocs.rec_department == userDept
+            )
+        )
+    ).order_by(
+        models.InboxDocs.date.desc()
     ).all()
