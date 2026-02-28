@@ -123,6 +123,32 @@
           class="navbar-link {% if page == 'reports' %} active {% endif %}"
           >Reports</a
         >
+        {% elif role == 'faculty' %}
+        <a
+          href="/faculty/dashboard"
+          class="navbar-link {% if page == 'dashboard' %} active {% endif %}"
+          >Dashboard</a
+        >
+        <a
+          href="/faculty/upload"
+          class="navbar-link {% if page == 'upload' %} active {% endif %}"
+          >Upload</a
+        >
+        <a
+          href="/faculty/pending"
+          class="navbar-link {% if page == 'pending' %} active {% endif %}"
+          >Pending</a
+        >
+        <a
+          href="/faculty/inbox"
+          class="navbar-link {% if page == 'inbox' %} active {% endif %}"
+          >Inbox</a
+        >
+        <a
+          href="/faculty/reports"
+          class="navbar-link {% if page == 'reports' %} active {% endif %}"
+          >Reports</a
+        >
         {% endif %}
       </div>
       <div class="profile-block">

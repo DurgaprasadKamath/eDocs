@@ -1,0 +1,61 @@
+{% extends "navbar.html" %} {% block title %} eDocs - Reports {% endblock title
+%} {% block content %}
+
+<div class="std-reports-main-container">
+  {% for doc in allReports %}
+  <div class="reports-block">
+    <div class="value-block">
+      <p id="label">Application No.:</p>
+      <p id="value-appno">{{doc.app_no}}</p>
+    </div>
+    <div class="value-block">
+      <p id="label">Application Type:</p>
+      <p id="value">{{docTypes[doc.app_type]}}</p>
+    </div>
+    <div class="value-block">
+      <p id="label">Submitted On:</p>
+      <p id="value">{{doc.date.strftime('%B %d, %Y')}}</p>
+    </div>
+    <div class="value-block">
+      <p id="label">Status:</p>
+      <p
+        id="status-{% if doc.status == 'Approved' %}approved{% elif doc.status == 'Rejected' %}rejected{% elif doc.status == 'Under Process' %}undProcess{% else %}pending{% endif %}"
+        {%
+        if
+        doc.rejectTxt
+        %}
+        data-bs-toggle="tooltip"
+        data-bs-placement="top"
+        data-bs-custom-class="custom-tooltip"
+        data-bs-title="{{doc.rejectTxt}}"
+        {%
+        endif
+        %}
+      >
+        {{doc.status}}
+      </p>
+    </div>
+    <a href="/view/{{doc.app_no}}" target="_blank">View Application</a>
+  </div>
+  {% endfor %}
+</div>
+
+<script>
+  const tooltipTriggerList = document.querySelectorAll(
+    '[data-bs-toggle="tooltip"]',
+  );
+  const tooltipList = [...tooltipTriggerList].map(
+    (tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl),
+  );
+  const eventSource = new EventSource("/refresh-student");
+
+  eventSource.addEventListener("db_change", function (event) {
+    location.reload();
+  });
+
+  eventSource.onerror = function () {
+    console.log("SSE connection lost");
+  };
+</script>
+
+{% endblock content %}

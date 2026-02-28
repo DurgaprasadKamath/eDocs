@@ -876,7 +876,7 @@ async def read_std_home(
     )
 
 @app.get("/student/upload", response_class=HTMLResponse)
-async def read_std_home(
+async def read_std_upload(
     request: Request,
     db: Session = Depends(database.get_db)
 ):
@@ -899,7 +899,7 @@ async def read_std_home(
     )
 
 @app.get("/student/pending", response_class=HTMLResponse)
-async def read_std_home(
+async def read_std_pending(
     request: Request,
     db: Session = Depends(database.get_db)
 ):
@@ -911,7 +911,7 @@ async def read_std_home(
     if not email:
         return RedirectResponse(url="/login", status_code=303)
     
-    pendingDocs = crud.get_student_pending_docs(db, email)
+    pendingDocs = crud.get_user_pending_docs(db, email)
 
     return templates.TemplateResponse(
         "student/pending.html",
@@ -925,7 +925,7 @@ async def read_std_home(
     )
 
 @app.get("/student/inbox", response_class=HTMLResponse)
-async def read_std_home(
+async def read_std_inbox(
     request: Request,
     db: Session = Depends(database.get_db)
 ):
@@ -951,7 +951,7 @@ async def read_std_home(
     )
 
 @app.get("/student/reports", response_class=HTMLResponse)
-async def read_std_home(
+async def read_std_reports(
     request: Request,
     db: Session = Depends(database.get_db)
 ):
@@ -963,7 +963,7 @@ async def read_std_home(
     if not email:
         return RedirectResponse(url="/login", status_code=303)
     
-    allReports = crud.get_student_all_reports(db, email)
+    allReports = crud.get_user_all_reports(db, email)
 
     return templates.TemplateResponse(
         "student/reports.html",
@@ -1108,6 +1108,33 @@ async def read_hod_inbox(
         }
     )
     
+@app.get("/hod/reports", response_class=HTMLResponse)
+async def read_hod_reports(
+    request: Request,
+    db: Session = Depends(database.get_db)
+):
+    email = request.session.get('email')
+    role = request.session.get('role')
+
+    if role != "hod":
+        return RedirectResponse(url="/", status_code=303)
+    if not email:
+        return RedirectResponse(url="/login", status_code=303)
+    
+    allReports = crud.get_user_all_reports(db, email)
+
+    return templates.TemplateResponse(
+        "hod/reports.html",
+        {
+            "request": request,
+            "page": "reports",
+            "role": role,
+            "docTypes": docTypes,
+            "allReports": allReports,
+            "departments": departments
+        }
+    )
+    
 @app.get("/hod/preview/{appNo}")
 async def view_document(
     request: Request,
@@ -1140,3 +1167,82 @@ async def view_document(
         }
     )
  
+@app.get("/faculty/dashboard", response_class=HTMLResponse)
+async def read_faculty_dashboard(
+    request: Request,
+    db: Session = Depends(database.get_db)
+):
+    email = request.session.get('email')
+    role = request.session.get('role')
+
+    if role != "faculty":
+        return RedirectResponse(url="/", status_code=303)
+    if not email:
+        return RedirectResponse(url="/login", status_code=303)
+    
+    approvedDocs = crud.get_user_approved_docs(db, email)
+
+    return templates.TemplateResponse(
+        "faculty/index.html",
+        {
+            "request": request,
+            "page": "dashboard",
+            "role": role,
+            "docTypes": docTypes,
+            "departments": departments,
+            "approvedDocs": approvedDocs
+        }
+    )
+ 
+@app.get("/faculty/upload", response_class=HTMLResponse)
+async def read_faculty_upload(
+    request: Request,
+    db: Session = Depends(database.get_db)
+):
+    email = request.session.get('email')
+    role = request.session.get('role')
+
+    if role != "faculty":
+        return RedirectResponse(url="/", status_code=303)
+    if not email:
+        return RedirectResponse(url="/login", status_code=303)
+    
+    return templates.TemplateResponse(
+        "faculty/upload.html",
+        {
+            "request": request,
+            "page": "upload",
+            "role": role,
+            "email": email,
+            "docTypes": docTypes,
+            "departments": departments,
+        }
+    )
+ 
+@app.get("/faculty/pending", response_class=HTMLResponse)
+async def read_faculty_pending(
+    request: Request,
+    db: Session = Depends(database.get_db)
+):
+    email = request.session.get('email')
+    role = request.session.get('role')
+
+    if role != "faculty":
+        return RedirectResponse(url="/", status_code=303)
+    if not email:
+        return RedirectResponse(url="/login", status_code=303)
+    
+    pendingDocs = crud.get_user_pending_docs(db, email)
+    
+    return templates.TemplateResponse(
+        "faculty/pending.html",
+        {
+            "request": request,
+            "page": "pending",
+            "role": role,
+            "email": email,
+            "docTypes": docTypes,
+            "departments": departments,
+            "pendingDocs": pendingDocs
+        }
+    )

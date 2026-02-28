@@ -1115,7 +1115,6 @@ async def view_doc(
         return RedirectResponse(url=f"/hod/preview/{appNo}", status_code=303)
     return RedirectResponse(url="/", status_code=303)
 
-
 @router.post("/hod/upload")
 async def upload_document(
     request: Request,
@@ -1150,6 +1149,54 @@ async def upload_document(
         sender_department = user.department,
         sender_role = user.role,
         rec_role = 'office_staff',
+        status = "Pending",
+        rejectTxt = "",
+        date = datetime.now()
+    )
+    
+    crud.add_document(db, appData)
+
+    return RedirectResponse(url="/", status_code=303)
+
+@router.post("/faculty/upload")
+async def upload_document(
+    request: Request,
+    email: str = Form(...),
+    appType: str = Form(...),
+    docTitle: str = Form(...),
+    description: str = Form(...),
+    docFile: UploadFile = File(...),
+    db: Session = Depends(database.get_db)
+):    
+    user = crud.get_user_by_email(db, email)
+    
+    app_no = get_app_no(db)
+    
+    _, ext = os.path.splitext(docFile.filename)
+    
+    app_name = f"{app_no}{ext}"
+    app_path = f"app/static/document_uploads/pending/{app_name}"
+    
+    with open(app_path, "wb") as buffer:
+        shutil.copyfileobj(docFile.file, buffer)
+        
+    if appType == 'MARK_SUB' or appType == 'EVE_REQ' or appType == 'SYL_COM':
+        rec_role = 'office_staff'
+    elif appType == 'LEA_REQ' or appType == 'WORK_REQ':
+        rec_role = 'hod'
+        
+    appData = schemas.Documents(
+        app_no = app_no,
+        app_path = app_path,
+        app_type = appType,
+        app_title = docTitle,
+        description = description,
+        sender_email = email,
+        sender_name = user.name,
+        sender_id_no = user.id,
+        sender_department = user.department,
+        sender_role = user.role,
+        rec_role = rec_role,
         status = "Pending",
         rejectTxt = "",
         date = datetime.now()

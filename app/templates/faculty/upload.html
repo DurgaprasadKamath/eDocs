@@ -1,0 +1,43 @@
+{% extends "navbar.html" %} {% block title %} eDocs - Upload {% endblock title
+%} {% block content %}
+
+<div class="upload-main-container">
+  <form
+    action="/faculty/upload"
+    method="post"
+    enctype="multipart/form-data"
+    id="uploadForm"
+  >
+    <input type="email" value="{{email}}" name="email" hidden />
+    <div class="input-block">
+      <p id="label">Application Type</p>
+      <select name="appType" id="appType" required>
+        <option value="LEA_REQ" selected>Leave Request</option>
+        <option value="MARK_SUB">Marks Submission</option>
+        <option value="EVE_REQ">Event Request</option>
+        <option value="SYL_COM">Syllabus Progress Report</option>
+        <option value="WORK_REQ">Workshop Request</option>
+      </select>
+    </div>
+    <div class="input-block">
+      <p id="label">Document Title</p>
+      <input type="text" name="docTitle" placeholder="Title Here" required />
+    </div>
+    <div class="input-block">
+      <p id="label">Description / Reason</p>
+      <textarea
+        name="description"
+        placeholder="Description / Reason Here"
+        rows="3"
+        required
+      ></textarea>
+    </div>
+    <div class="input-block">
+      <p id="label">Attach Document</p>
+      <input type="file" name="docFile" required />
+    </div>
+    <button id="submitBtn" type="submit">Submit Application</button>
+  </form>
+</div>
+
+{% endblock content %}

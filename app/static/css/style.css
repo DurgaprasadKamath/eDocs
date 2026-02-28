@@ -279,7 +279,7 @@ nav.navbar-main {
           .password-end {
             display: flex;
             flex-direction: row;
-            justify-content: end;
+            justify-content: start;
             a {
               text-align: end;
               width: 40%;
@@ -2284,6 +2284,7 @@ nav.navbar-main {
 
 .pending-main-container,
 .std-dash-main-container,
+.faculty-dash-main-container,
 .std-reports-main-container,
 .inbox-main-container,
 .hod-approved-main-container {

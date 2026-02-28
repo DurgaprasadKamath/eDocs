@@ -272,7 +272,7 @@ def get_user_approved_docs(
         models.DocumentInfo.date.asc()    
     ).all()
     
-def get_student_pending_docs(
+def get_user_pending_docs(
     db: Session,
     stdEmail: str,
 ):
@@ -307,7 +307,7 @@ def get_student_inbox(
         models.InboxDocs.date.desc()
     ).all()
 
-def get_student_all_reports(
+def get_user_all_reports(
     db: Session,
     stdEmail: str
 ):
@@ -361,3 +361,5 @@ def get_hod_inbox(
     ).order_by(
         models.InboxDocs.date.desc()
     ).all()
+    
+# def get_hod_reports(db: Session)
