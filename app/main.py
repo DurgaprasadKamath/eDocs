@@ -1246,3 +1246,59 @@ async def read_faculty_pending(
             "pendingDocs": pendingDocs
         }
     )
+ 
+@app.get("/faculty/inbox", response_class=HTMLResponse)
+async def read_faculty_inbox(
+    request: Request,
+    db: Session = Depends(database.get_db)
+):
+    email = request.session.get('email')
+    role = request.session.get('role')
+
+    if role != "faculty":
+        return RedirectResponse(url="/", status_code=303)
+    if not email:
+        return RedirectResponse(url="/login", status_code=303)
+    
+    inboxDocs = crud.get_faculty_inbox(db, email)
+    
+    return templates.TemplateResponse(
+        "faculty/inbox.html",
+        {
+            "request": request,
+            "page": "inbox",
+            "role": role,
+            "email": email,
+            "docTypes": docTypes,
+            "departments": departments,
+            "inboxDocs": inboxDocs
+        }
+    )
+ 
+@app.get("/faculty/reports", response_class=HTMLResponse)
+async def read_faculty_reports(
+    request: Request,
+    db: Session = Depends(database.get_db)
+):
+    email = request.session.get('email')
+    role = request.session.get('role')
+
+    if role != "faculty":
+        return RedirectResponse(url="/", status_code=303)
+    if not email:
+        return RedirectResponse(url="/login", status_code=303)
+    
+    allReports = crud.get_user_all_reports(db, email)
+    
+    return templates.TemplateResponse(
+        "faculty/reports.html",
+        {
+            "request": request,
+            "page": "reports",
+            "role": role,
+            "email": email,
+            "docTypes": docTypes,
+            "departments": departments,
+            "allReports":allReports
+        }
+    )

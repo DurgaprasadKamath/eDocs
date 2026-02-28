@@ -1322,13 +1322,13 @@ nav.navbar-main {
   display: flex;
   flex-direction: column;
   .title-bar.inbox {
-    top: 11vh;
+    top: 8vh;
     p#name {
       width: 24.5%;
     }
   }
   .report-list.inbox {
-    top: 19vh;
+    top: 16vh;
     p#name {
       width: 25%;
     }
