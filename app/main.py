@@ -1,15 +1,13 @@
 from fastapi import FastAPI, Request, Depends
-from fastapi.responses import RedirectResponse, Response, HTMLResponse
+from fastapi.responses import RedirectResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from app.database import Base, engine, SessionLocal
-from app.models import UserInfo
+from app.database import Base, engine
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from app.routes import auth_routes
 from app import crud, database, models
 from sqlalchemy.orm import Session
-from collections import defaultdict
 from datetime import datetime
 from sqlalchemy import and_, or_
 import asyncio

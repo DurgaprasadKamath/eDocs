@@ -1,0 +1,1 @@
+pip install fastapi uvicorn sqlalchemy jinja2 python-multipart passlib[bcrypt] sse-starlette
