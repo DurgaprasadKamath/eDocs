@@ -92,6 +92,7 @@ docTypes = {
     "OTHER": "Other"
 }
 
+# office home refresh
 async def refresh_office_home(db: Session):
     prev_count = db.query(models.DocumentInfo).filter(
         and_(
@@ -122,6 +123,49 @@ async def refresh_office_home(db: Session):
 async def sse_endpoint(db: Session = Depends(database.get_db)):
     return EventSourceResponse(refresh_office_home(db))
 
+# office manage accounts refresh
+async def refresh_manage_acc(db: Session):
+    prev_acc_count = db.query(models.UserInfo).count()
+    
+    while True:
+        await asyncio.sleep(2)
+        
+        cur_acc_count = db.query(models.UserInfo).count()
+        
+        if cur_acc_count != prev_acc_count:
+            prev_acc_count = cur_acc_count
+            
+            yield {
+                "event": "db_change",
+                "data": "database updated"
+            }
+            
+@app.get("/office_manage_refresh")
+async def sse_endpoint(db: Session = Depends(database.get_db)):
+    return EventSourceResponse(refresh_manage_acc(db))
+
+# office upload history refresh
+async def refresh_upload_history(db: Session):
+    prev_hist_count = db.query(models.InboxDocs).count()
+    
+    while True:
+        await asyncio.sleep(2)
+
+        cur_hist_count = db.query(models.InboxDocs).count()
+        
+        if cur_hist_count != prev_hist_count:
+            prev_hist_count = cur_hist_count
+            
+            yield {
+                "event": "db_change",
+                "data": "database updated"
+            }
+            
+@app.get("/refresh_upload_history")
+async def sse_endpoint(db: Session = Depends(database.get_db)):
+    return EventSourceResponse(refresh_upload_history(db))
+
+# hod home refresh
 async def refresh_hod_home(db: Session):
     prev_count = db.query(models.DocumentInfo).filter(
         and_(
@@ -195,6 +239,7 @@ async def refresh_page_approved(db: Session):
 async def sse_endpoint(db: Session = Depends(database.get_db)):
     return EventSourceResponse(refresh_page_approved(db))
 
+'''
 async def refresh_inbox(db: Session):
     prevInboxCount = db.query(models.InboxDocs).count()
     
@@ -214,7 +259,8 @@ async def refresh_inbox(db: Session):
 @app.get("/refresh-inbox")
 async def sse_endpoint(db: Session = Depends(database.get_db)):
     return EventSourceResponse(refresh_inbox(db))
-    
+'''
+
 async def refresh_office_reports(db: Session):
     prev_rep_count = db.query(models.DocumentInfo).filter(
         models.DocumentInfo.rec_role == "office_staff"

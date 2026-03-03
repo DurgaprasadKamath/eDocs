@@ -1,4 +1,4 @@
-{% extends "navbar.html" %} {% block title %} eDocs - Dashboard {% endblock
+{% extends "navbar.html" %} {% block title %} eDocs - Upload History {% endblock
 title %} {% block content %}
 
 <div class="report-office-main">
@@ -41,7 +41,7 @@ title %} {% block content %}
 </div>
 
 <script>
-  const eventSource = new EventSource("/refresh-inbox");
+  const eventSource = new EventSource("/refresh_upload_history");
 
   eventSource.addEventListener("db_change", function (event) {
     location.reload();

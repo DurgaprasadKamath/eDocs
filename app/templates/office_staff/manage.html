@@ -85,6 +85,16 @@
 </div>
 
 <script>
+  const eventSource = new EventSource("/office_manage_refresh");
+
+  eventSource.addEventListener("db_change", function (event) {
+    location.reload();
+  });
+
+  eventSource.onerror = function () {
+    console.log("SSE connection lost");
+  };
+
   const filterForm = document.getElementById("filterForm");
   const searchInput = document.getElementById("searchInput");
   let submitTimer;
