@@ -2280,7 +2280,7 @@ nav.navbar-main {
   gap: 2vw;
   width: 96%;
   height: 100%;
-  margin: 0% auto;
+  margin: 1% auto;
   align-self: center;
   background-color: var(--body-background);
   .dashboard-block,
