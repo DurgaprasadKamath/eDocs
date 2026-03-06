@@ -384,13 +384,21 @@ def get_faculty_inbox(
         models.InboxDocs.date.desc()
     ).all()
     
+def status_with_dept(db: Session, status: str, role: str, dept: str):
+    return db.query(models.DocumentInfo).filter(
+        and_(
+            models.DocumentInfo.status == status,
+            models.DocumentInfo.rec_role == role,
+            models.DocumentInfo.sender_department == dept
+        )
+    ).count()
+    
 def get_status_count(db: Session, status: str, role: str):
     return db.query(models.DocumentInfo).filter(
         and_(
             models.DocumentInfo.status == status,
             models.DocumentInfo.rec_role == role
         )
-        # models.DocumentInfo.status == status
     ).count()
     
 def status_with_email_count(db: Session, status: str, email: str):

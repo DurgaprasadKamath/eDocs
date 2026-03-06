@@ -47,7 +47,8 @@
   const tooltipList = [...tooltipTriggerList].map(
     (tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl),
   );
-  const eventSource = new EventSource("/refresh-student");
+
+  const eventSource = new EventSource("/refresh-reports");
 
   eventSource.addEventListener("db_change", function (event) {
     location.reload();

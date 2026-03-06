@@ -48,7 +48,7 @@
     (tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl),
   );
   
-  const eventSource = new EventSource("/refresh_hod_reports");
+  const eventSource = new EventSource("/refresh-reports");
 
   eventSource.addEventListener("db_change", function (event) {
     location.reload();

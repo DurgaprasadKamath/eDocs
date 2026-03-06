@@ -30,7 +30,7 @@ title %} {% block content %}
 </div>
 
 <script>
-  const eventSource = new EventSource("/refresh_hod_inbox");
+  const eventSource = new EventSource("/refresh-inbox");
 
   eventSource.addEventListener("db_change", function (event) {
     location.reload();

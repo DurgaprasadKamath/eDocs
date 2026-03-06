@@ -90,6 +90,154 @@ docTypes = {
     "OTHER": "Other"
 }
 
+# approved page refresh (for all users)
+async def refresh_page_approved(request: Request, db: Session):
+    email = request.session.get('email')
+    
+    prevApprovedCount = crud.status_with_email_count(db, 'Approved', email)
+    
+    while True:
+        await asyncio.sleep(2)
+        
+        curApprovedCount = crud.status_with_email_count(db, 'Approved', email)
+        
+        if curApprovedCount != prevApprovedCount:
+            prevApprovedCount = curApprovedCount
+            
+            yield {
+                "event": "db_change",
+                "data": "database updated"
+            }
+            
+@app.get("/refresh-approved")
+async def sse_endpoint(request: Request, db: Session = Depends(database.get_db)):
+    return EventSourceResponse(refresh_page_approved(request, db))
+
+# pending page refresh (for all users)
+async def refresh_page_pending(request: Request, db: Session):
+    email = request.session.get('email')
+    
+    prevPendingCount = crud.status_with_email_count(db, 'Pending', email)
+    
+    while True:
+        await asyncio.sleep(2)
+        
+        curPendingCount = crud.status_with_email_count(db, 'Pending', email)
+        
+        if curPendingCount != prevPendingCount:
+            prevPendingCount = curPendingCount
+            
+            yield {
+                "event": "db_change",
+                "data": "database updated"
+            }
+            
+@app.get("/refresh-pending")
+async def sse_endpoint(request: Request, db: Session = Depends(database.get_db)):
+    return EventSourceResponse(refresh_page_pending(request, db))
+
+# inbox page refresh(for all users)
+async def refresh_page_inbox(request: Request, db: Session):
+    email = request.session.get('email')
+    dept = (crud.get_user_by_email(db, email)).department
+    role = (crud.get_user_by_email(db, email)).role
+    
+    prevInboxCount = db.query(models.InboxDocs).filter(
+        and_(
+            or_(
+                models.InboxDocs.rec_role == 'all',
+                models.InboxDocs.rec_role == role
+            ),
+            or_(
+                models.InboxDocs.rec_department == 'all',
+                models.InboxDocs.rec_department == dept
+            )            
+        )
+    ).count()
+    
+    while True:
+        await asyncio.sleep(2)
+
+        currInboxCount = db.query(models.InboxDocs).filter(
+            and_(
+                or_(
+                    models.InboxDocs.rec_role == 'all',
+                    models.InboxDocs.rec_role == role
+                ),
+                or_(
+                    models.InboxDocs.rec_department == 'all',
+                    models.InboxDocs.rec_department == dept
+                )            
+            )
+        ).count()
+        
+        if currInboxCount != prevInboxCount:
+            prevInboxCount = currInboxCount
+            
+            yield {
+                "event": "db_change",
+                "data": "database updated"
+            }
+            
+@app.get("/refresh-inbox")
+async def sse_endpoint(request: Request, db: Session = Depends(database.get_db)):
+    return EventSourceResponse(refresh_page_inbox(request, db))
+
+# reports page refresh (for all users)
+async def refresh_page_reports(request: Request, db: Session):
+    email = request.session.get('email')
+
+    prevReportsCount = db.query(models.DocumentInfo).filter(
+        models.DocumentInfo.sender_email == email
+    ).count()
+    
+    prevPendingCount, prevUnderProcessCount, prevRejectCount, prevApprovedCount = (
+        crud.status_with_email_count(db, 'Pending', email),
+        crud.status_with_email_count(db, 'Under Process', email),
+        crud.status_with_email_count(db, 'Reject', email),
+        crud.status_with_email_count(db, 'Approved', email)
+    )
+    
+    while True:
+        await asyncio.sleep(2)
+        
+        currReportsCount = db.query(models.DocumentInfo).filter(
+            models.DocumentInfo.sender_email == email
+        ).count()
+        
+        curPendingCount, curUnderProcessCount, curRejectCount, curApprovedCount = (
+            crud.status_with_email_count(db, 'Pending', email),
+            crud.status_with_email_count(db, 'Under Process', email),
+            crud.status_with_email_count(db, 'Reject', email),
+            crud.status_with_email_count(db, 'Approved', email)
+        )
+        
+        if (
+            currReportsCount != prevReportsCount
+            or
+            curApprovedCount != prevApprovedCount
+            or
+            curPendingCount != prevPendingCount
+            or
+            curRejectCount != prevRejectCount
+            or
+            curUnderProcessCount != prevUnderProcessCount
+        ):
+            prevReportsCount = currReportsCount
+            prevApprovedCount = curApprovedCount
+            prevPendingCount = curPendingCount
+            prevRejectCount = curRejectCount
+            prevUnderProcessCount = curUnderProcessCount
+            
+            yield {
+                "event": "db_change",
+                "data": "database updated"
+            }
+        
+@app.get("/refresh-reports")
+async def sse_endpoint(request: Request, db: Session = Depends(database.get_db)):
+    return EventSourceResponse(refresh_page_reports(request, db))
+
 # office home refresh
 async def refresh_office_home(db: Session):
     prev_count = db.query(models.DocumentInfo).filter(
@@ -123,15 +271,28 @@ async def sse_endpoint(db: Session = Depends(database.get_db)):
 
 # office manage accounts refresh
 async def refresh_manage_acc(db: Session):
-    prev_acc_count = db.query(models.UserInfo).count()
+    prevActiveCount = db.query(models.UserInfo).filter(
+        models.UserInfo.password != None
+    ).count()
+    
+    prevAccountCount = db.query(models.UserInfo).count()
     
     while True:
         await asyncio.sleep(2)
         
-        cur_acc_count = db.query(models.UserInfo).count()
+        curActiveCount = db.query(models.UserInfo).filter(
+            models.UserInfo.password != None
+        ).count()
         
-        if cur_acc_count != prev_acc_count:
-            prev_acc_count = cur_acc_count
+        curAccountCount = db.query(models.UserInfo).count()
+        
+        if (
+            curActiveCount != prevActiveCount
+            or
+            curAccountCount != prevAccountCount
+        ):
+            prevActiveCount = curActiveCount
+            prevAccountCount = curAccountCount
             
             yield {
                 "event": "db_change",
@@ -163,65 +324,64 @@ async def refresh_upload_history(db: Session):
 async def sse_endpoint(db: Session = Depends(database.get_db)):
     return EventSourceResponse(refresh_upload_history(db))
 
-# office reports refresh
 async def refresh_office_reports(db: Session):
     prevReportsCount = db.query(models.DocumentInfo).filter(
-        models.DocumentInfo.rec_role == "office_staff"
+        models.DocumentInfo.rec_role == 'office_staff'
     ).count()
     
-    prevPendingCount, prevUnderProcessCount, prevRejectCount, prevApprovedCount = (
-        crud.get_status_count(db, 'Pending', 'office_staff'),
-        crud.get_status_count(db, 'Under Process', 'office_staff'),
+    prevApprovedCount, prevRejectedCount, prevPendingCount, prevUnderProcessCount = (
+        crud.get_status_count(db, 'Approved', 'office_staff'),
         crud.get_status_count(db, 'Rejected', 'office_staff'),
-        crud.get_status_count(db, 'Approved', 'office_staff')
+        crud.get_status_count(db, 'Pending', 'office_staff'),
+        crud.get_status_count(db, 'Under Process', 'office_staff')
     )
     
     while True:
         await asyncio.sleep(2)
-        
-        currReportsCount = db.query(models.DocumentInfo).filter(
-            models.DocumentInfo.rec_role == "office_staff"
+
+        curReportsCount = db.query(models.DocumentInfo).filter(
+            models.DocumentInfo.rec_role == 'office_staff'
         ).count()
         
-        curPendingCount, curUnderProcessCount, curRejectCount, curApprovedCount = (
-            crud.get_status_count(db, 'Pending', 'office_staff'),
-            crud.get_status_count(db, 'Under Process', 'office_staff'),
+        curApprovedCount, curRejectedCount, curPendingCount, curUnderProcessCount = (
+            crud.get_status_count(db, 'Approved', 'office_staff'),
             crud.get_status_count(db, 'Rejected', 'office_staff'),
-            crud.get_status_count(db, 'Approved', 'office_staff')
+            crud.get_status_count(db, 'Pending', 'office_staff'),
+            crud.get_status_count(db, 'Under Process', 'office_staff')
         )
         
         if (
-            currReportsCount != prevReportsCount
+            prevReportsCount != curReportsCount
             or
             curApprovedCount != prevApprovedCount
             or
             curPendingCount != prevPendingCount
             or
-            curRejectCount != prevRejectCount
+            curRejectedCount != prevRejectedCount
             or
             curUnderProcessCount != prevUnderProcessCount
         ):
-            prevReportsCount = currReportsCount
+            prevReportsCount = curReportsCount
             prevApprovedCount = curApprovedCount
             prevPendingCount = curPendingCount
-            prevRejectCount = curRejectCount
+            prevRejectedCount = curRejectedCount
             prevUnderProcessCount = curUnderProcessCount
             
             yield {
-                "event": "db_change",
-                "data": "database updated"
+                'event': 'db_change',
+                'data': 'database updated'
             }
-        
-@app.get("/office_reports_refresh")
-async def sse_endpoint(db: Session = Depends(database.get_db)):
-    return EventSourceResponse(refresh_office_reports(db))
 
 # hod home refresh
-async def refresh_hod_home(db: Session):
+async def refresh_hod_home(request: Request, db: Session):
+    email = request.session.get('email')
+    dept = (crud.get_user_by_email(db, email)).department
+    
     prev_count = db.query(models.DocumentInfo).filter(
         and_(
             models.DocumentInfo.status == "Pending",
-            models.DocumentInfo.rec_role == "hod"
+            models.DocumentInfo.rec_role == "hod",
+            models.DocumentInfo.sender_department == dept
         )
     ).count()
     
@@ -231,7 +391,8 @@ async def refresh_hod_home(db: Session):
         cur_count = db.query(models.DocumentInfo).filter(
             and_(
                 models.DocumentInfo.status == "Pending",
-                models.DocumentInfo.rec_role == "hod"
+                models.DocumentInfo.rec_role == "hod",
+                models.DocumentInfo.sender_department == dept
             )
         ).count()
         
@@ -244,62 +405,43 @@ async def refresh_hod_home(db: Session):
             }
 
 @app.get("/hod_home_refresh")
-async def sse_endpoint(db: Session = Depends(database.get_db)):
-    return EventSourceResponse(refresh_hod_home(db))
-
-async def refresh_page_approved(db: Session):
-    prevApprovedCount, prevRejectCount, prevUnderProcessCount, prevPendingCount = (
-        crud.get_status_count(db, 'Approved', 'hod'),
-        crud.get_status_count(db, 'Rejected', 'hod'),
-        crud.get_status_count(db, 'Under Process', 'hod'),
-        crud.get_status_count(db, 'Pending', 'hod')
-    )
-    while True:
-        await asyncio.sleep(2)
-        curApprovedCount, curRejectCount, curUnderProcessCount, curPendingCount = (
-            crud.get_status_count(db, 'Approved', 'hod'),
-            crud.get_status_count(db, 'Rejected', 'hod'),
-            crud.get_status_count(db, 'Under Process', 'hod'),
-            crud.get_status_count(db, 'Pending', 'hod')
-        )
-        
-        if curApprovedCount != prevApprovedCount or curRejectCount != prevRejectCount or curUnderProcessCount != prevUnderProcessCount or curPendingCount != prevPendingCount:
-            prevApprovedCount, prevRejectCount, prevUnderProcessCount, prevPendingCount = curApprovedCount, curRejectCount, curUnderProcessCount, curPendingCount
-            
-            yield {
-                "event": "db_change",
-                "data": "database updated"
-            }
-            
-@app.get("/refresh-approved")
-async def sse_endpoint(db: Session = Depends(database.get_db)):
-    return EventSourceResponse(refresh_page_approved(db))
+async def sse_endpoint(request: Request, db: Session = Depends(database.get_db)):
+    return EventSourceResponse(refresh_hod_home(request, db))
 
 # hod history refresh
-async def refresh_hod_history(db: Session):
+async def refresh_hod_history(request: Request, db: Session):
+    email = request.session.get('email')
+    dept = (crud.get_user_by_email(db, email)).department
+    
     prevHistoryCount = db.query(models.DocumentInfo).filter(
-        models.DocumentInfo.rec_role == "hod"
+        and_(
+            models.DocumentInfo.sender_department == dept,
+            models.DocumentInfo.rec_role == "hod"
+        )
     ).count()
     
     prevPendingCount, prevUnderProcessCount, prevRejectCount, prevApprovedCount = (
-        crud.get_status_count(db, 'Pending', 'hod'),
-        crud.get_status_count(db, 'Under Process', 'hod'),
-        crud.get_status_count(db, 'Rejected', 'hod'),
-        crud.get_status_count(db, 'Approved', 'hod')
+        crud.status_with_dept(db, 'Pending', 'hod', dept),
+        crud.status_with_dept(db, 'Under Process', 'hod', dept),
+        crud.status_with_dept(db, 'Rejected', 'hod', dept),
+        crud.status_with_dept(db, 'Approved', 'hod', dept)
     )
     
     while True:
         await asyncio.sleep(2)
 
         currHistoryCount = db.query(models.DocumentInfo).filter(
-            models.DocumentInfo.rec_role == "hod"
+            and_(
+                models.DocumentInfo.sender_department == dept,
+                models.DocumentInfo.rec_role == "hod"
+            )
         ).count()
         
         curPendingCount, curUnderProcessCount, curRejectCount, curApprovedCount = (
-            crud.get_status_count(db, 'Pending', 'hod'),
-            crud.get_status_count(db, 'Under Process', 'hod'),
-            crud.get_status_count(db, 'Rejected', 'hod'),
-            crud.get_status_count(db, 'Approved', 'hod')
+            crud.status_with_dept(db, 'Pending', 'hod', dept),
+            crud.status_with_dept(db, 'Under Process', 'hod', dept),
+            crud.status_with_dept(db, 'Rejected', 'hod', dept),
+            crud.status_with_dept(db, 'Approved', 'hod', dept)
         )
 
         if (
@@ -325,98 +467,10 @@ async def refresh_hod_history(db: Session):
             }
 
 @app.get("/refresh_hod_history")
-async def sse_endpoint(db: Session = Depends(database.get_db)):
-    return EventSourceResponse(refresh_hod_history(db))
+async def sse_endpoint(request: Request, db: Session = Depends(database.get_db)):
+    return EventSourceResponse(refresh_hod_history(request, db))
 
-# refresh hod inbox
-async def refresh_hod_inbox(db: Session):
-    prevInboxCount = db.query(models.InboxDocs).filter(
-        or_(
-            models.InboxDocs.rec_role == 'all',
-            models.InboxDocs.rec_role == 'hod'
-        )
-    ).count()
-    
-    while True:
-        await asyncio.sleep(2)
-
-        currInboxCount = db.query(models.InboxDocs).filter(
-            or_(
-                models.InboxDocs.rec_role == 'all',
-                models.InboxDocs.rec_role == 'hod',
-            )
-        ).count()
-        
-        if currInboxCount != prevInboxCount:
-            prevInboxCount = currInboxCount
-            
-            yield {
-                "event": "db_change",
-                "data": "database updated"
-            }
-            
-@app.get("/refresh_hod_inbox")
-async def sse_endpoint(db: Session = Depends(database.get_db)):
-    return EventSourceResponse(refresh_hod_inbox(db))
-
-# hod reports refresh
-async def refresh_hod_reports(request: Request, db: Session):
-    email = request.session.get('email')
-
-    prevReportsCount = db.query(models.DocumentInfo).filter(
-        models.DocumentInfo.sender_role == 'hod',
-        models.DocumentInfo.sender_email == email
-    ).count()
-    
-    prevPendingCount, prevApprovedCount, prevRejectCount, prevUnderProcessCount = (
-        crud.status_with_email_count(db, 'Pending', email),
-        crud.status_with_email_count(db, 'Approved', email),
-        crud.status_with_email_count(db, 'Rejected', email),
-        crud.status_with_email_count(db, 'Under Process', email)
-    )
-    
-    while True:
-        await asyncio.sleep(2)
-
-        currReportsCount = db.query(models.DocumentInfo).filter(
-            models.DocumentInfo.sender_role == 'hod',
-            models.DocumentInfo.sender_email == email
-        ).count()
-        
-        currPendingCount, currApprovedCount, currRejectCount, currUnderProcessCount = (
-            crud.status_with_email_count(db, 'Pending', email),
-            crud.status_with_email_count(db, 'Approved', email),
-            crud.status_with_email_count(db, 'Rejected', email),
-            crud.status_with_email_count(db, 'Under Process', email)
-        )
-
-        if (
-            currReportsCount != prevReportsCount
-            or
-            currPendingCount != prevPendingCount
-            or
-            currApprovedCount != prevApprovedCount
-            or
-            currUnderProcessCount != prevUnderProcessCount
-            or
-            currRejectCount != prevRejectCount
-        ):
-            prevReportsCount = currReportsCount
-            prevApprovedCount = currApprovedCount
-            prevRejectCount = currRejectCount
-            prevUnderProcessCount = currUnderProcessCount
-            prevPendingCount = currPendingCount
-            
-            yield {
-                "event": "db_change",
-                "data": "database updated"
-            }
-            
-@app.get("/refresh_hod_reports")
-async def sse_endpoint(request: Request ,db: Session = Depends(database.get_db)):
-    return EventSourceResponse(refresh_hod_reports(request, db))
-
-
+# main backend
 @app.get("/", response_class=HTMLResponse)
 async def read_home(
     request: Request
@@ -1220,6 +1274,34 @@ async def read_hod_history(
             "departments": departments
         }
     )
+    
+
+@app.get("/hod/pending", response_class=HTMLResponse)
+async def read_std_pending(
+    request: Request,
+    db: Session = Depends(database.get_db)
+):
+    email = request.session.get('email')
+    role = request.session.get('role')
+
+    if role != "hod":
+        return RedirectResponse(url="/", status_code=303)
+    if not email:
+        return RedirectResponse(url="/login", status_code=303)
+    
+    pendingDocs = crud.get_user_pending_docs(db, email)
+
+    return templates.TemplateResponse(
+        "hod/pending.html",
+        {
+            "request": request,
+            "page": "pending",
+            "role": role,
+            "pendingDocs": pendingDocs,
+            "docType": docTypes
+        }
+    )
+
     
 @app.get("/hod/inbox", response_class=HTMLResponse)
 async def read_hod_inbox(

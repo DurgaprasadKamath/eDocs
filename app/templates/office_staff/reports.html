@@ -66,7 +66,7 @@
 </div>
 
 <script>
-  const eventSource = new EventSource("/office_reports_refresh");
+  const eventSource = new EventSource("/refresh_office_reports");
 
   eventSource.addEventListener("db_change", function (event) {
     location.reload();

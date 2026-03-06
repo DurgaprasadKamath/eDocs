@@ -26,7 +26,7 @@ title %} {% block content %}
 </div>
 
 <script>
-  const eventSource = new EventSource("/refresh-student");
+  const eventSource = new EventSource("/refresh-approved");
 
   eventSource.addEventListener("db_change", function (event) {
     location.reload();
