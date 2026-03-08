@@ -673,18 +673,6 @@ async def read_office_dashboard(
     request: Request,
     db: Session = Depends(database.get_db)
 ):
-    # from email.message import EmailMessage
-    # import smtplib
-
-    # msg = EmailMessage()
-    # msg["From"] = "231353@sdmcujire.in"
-    # msg["To"] = "durgaprasadkamath2004@gmail.com"
-    # msg["Subject"] = "eDocs"
-    # msg.set_content("Good morning")
-    
-    # with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-    #     server.login("231353@sdmcujire.in", "yyvqvmlwenfwmwfd")
-    #     server.send_message(msg)
     
     email = request.session.get('email')
     role = request.session.get('role')
