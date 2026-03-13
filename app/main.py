@@ -183,7 +183,7 @@ async def refresh_page_inbox(request: Request, db: Session):
 async def sse_endpoint(request: Request, db: Session = Depends(database.get_db)):
     return EventSourceResponse(refresh_page_inbox(request, db))
 
-# reports page refresh (for all users)
+# reports page refresh (for all users except office)
 async def refresh_page_reports(request: Request, db: Session):
     email = request.session.get('email')
 
@@ -371,6 +371,10 @@ async def refresh_office_reports(db: Session):
                 'event': 'db_change',
                 'data': 'database updated'
             }
+            
+@app.get("/refresh_office_reports")
+async def sse_endpoint(db: Session = Depends(database.get_db)):
+    return EventSourceResponse(refresh_office_reports(db))
 
 # hod home refresh
 async def refresh_hod_home(request: Request, db: Session):
