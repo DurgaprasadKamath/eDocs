@@ -106,9 +106,6 @@ async def login_user(
     request.session["password"] = user.password
     request.session["role"] = user.role
     
-    if user.role == 'principal':
-        return RedirectResponse(url="/principal/dashboard", status_code=303)
-    
     if user.role == 'office_staff':
         return RedirectResponse(url="/office/dashboard", status_code=303)
     
