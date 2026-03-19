@@ -2294,6 +2294,7 @@ nav.navbar-main {
     border-radius: 10px;
     gap: 1.5vh;
     padding: 5% 3%;
+    background-color: white;
     p {
       margin: 0%;
     }
