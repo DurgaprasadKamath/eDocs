@@ -139,13 +139,15 @@ nav.navbar-main {
   z-index: 5;
 }
 
-.login-main {
+.login-main,
+.forgot-pass-main {
   height: 100vh;
   width: 100vw;
   position: absolute;
   background-color: var(--body-background);
   top: 0%;
-  .login-container {
+  .login-container,
+  .forgot-pass-container {
     width: 60vw;
     height: 64vh;
     margin: 18vh 20vw;
@@ -176,7 +178,14 @@ nav.navbar-main {
         font-weight: 900;
         color: var(--primary-color);
       }
-      p#loginTxt {
+      button.backBtn{
+        background-color: transparent;
+        outline: none;
+        border: none;
+        width: 2vw;
+      }
+      p#loginTxt,
+      p#forgotPassTxt {
         font-weight: 550;
         font-size: 1.3rem;
         color: black;
@@ -185,6 +194,19 @@ nav.navbar-main {
         font-size: 0.8rem;
         font-weight: 500;
         color: var(--primary-color);
+      }
+      p#forgotPassTxt{
+        font-size: 0.85rem;
+        font-weight: 550;
+        margin: 1vh 0%;
+        a{
+          color: var(--primary-color);
+          text-decoration: none;
+        }
+        a:hover{
+          color: var(--secondary-color);
+          text-decoration: underline;
+        }
       }
     }
     .block2 {
@@ -253,7 +275,8 @@ nav.navbar-main {
             }
           }
           p#emailErrorTxt,
-          p#passwordErrorTxt {
+          p#passwordErrorTxt,
+          p#validNoErrorTxt {
             width: 60%;
             font-size: 0.7rem;
             font-weight: 550;

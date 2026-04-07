@@ -1202,3 +1202,48 @@ async def upload_document(
     crud.add_document(db, appData)
 
     return RedirectResponse(url="/", status_code=303)
+
+@router.post("/forgot-password")
+async def forgot_pass(
+    request: Request,
+    email: str = Form(...),
+    validNo: str = Form(...),
+    password: str = Form(...),
+    db: Session = Depends(database.get_db)
+):
+    user = crud.get_user_by_email(db, email)
+    
+    if not user:
+        return templates.TemplateResponse(
+            "forgot_password.html",
+            {
+                "request": request,
+                "emailError": True,
+                "enteredEmail": email,
+                "validNo": validNo,
+                "enteredPassword": password
+            }
+        )
+        
+    idNo = user.id
+    phoneNum = user.phone
+    validNum = idNo + phoneNum[6:]
+
+    if validNo != validNum:
+        return templates.TemplateResponse(
+            "forgot_password.html",
+            {
+                "request": request,
+                "validNoError": True,
+                "enteredEmail": email,
+                "validNo": validNo,
+                "enteredPassword": password
+            }
+        )
+    
+    if user:
+        user.password = hash_password(password)
+        db.commit()
+        db.refresh(user)
+    
+    return RedirectResponse(url="/login", status_code=303)

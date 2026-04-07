@@ -506,6 +506,16 @@ async def read_login(
         }
     )
     
+@app.get("/forgot-password", response_class=HTMLResponse)
+async def read_forgot_pass(
+    request: Request
+):
+    return templates.TemplateResponse(
+        "forgot_password.html",
+        {
+            "request": request
+        }
+    )
     
 @app.get("/logout", response_class=HTMLResponse)
 async def read_logout(
@@ -653,13 +663,14 @@ async def read_view_docs(
     appDoc = db.query(models.DocumentInfo).filter(
         models.DocumentInfo.app_no == appNo
     ).first()
+    
     if not appDoc:
         appDoc = db.query(models.InboxDocs).filter(
             models.InboxDocs.doc_no == appNo
         ).first()
     if not appDoc:
         return RedirectResponse(url="/", status_code=303)
-        
+
     appPath = str(appDoc.app_path)
     
     return templates.TemplateResponse(
@@ -1008,6 +1019,8 @@ async def view_document(
     appNo: str,
     db: Session = Depends(database.get_db)
 ):
+    role = request.session.get('role')
+    
     appDoc = db.query(
         models.DocumentInfo
     ).filter(
@@ -1016,6 +1029,9 @@ async def view_document(
     appPath = str(appDoc.app_path)
     
     if appDoc.status == "Approved" or appDoc.status == "Rejected":
+        return RedirectResponse(url="/", status_code=303)
+    
+    if role != 'office_staff':
         return RedirectResponse(url="/", status_code=303)
     
     return templates.TemplateResponse(
