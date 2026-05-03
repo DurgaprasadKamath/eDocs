@@ -64,7 +64,7 @@ departments = {
     "PG_MSC_CS": "M.Sc. Computer Science",
     "PG_MCA": "MCA",
     "PG_MBA": "MBA",
-    "OTHER": "Other"
+    "OFFICE": "Office"
 }
 
 roles = {
